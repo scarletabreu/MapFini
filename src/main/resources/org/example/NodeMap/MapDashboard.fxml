@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+
+<?import java.lang.String?>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Visual.MapDashboard" style="-fx-background-color: #302836">
+    <children>
+        <BorderPane prefHeight="900.0" prefWidth="1550.0">
+            <top>
+                <ToolBar prefHeight="46.0" prefWidth="600.0" BorderPane.alignment="CENTER" style="-fx-background-color: #302836;">
+                    <Button fx:id="enrouteButton" text="Enroute Stops" onAction="#handleEnroute" />
+                    <Button fx:id="findPathButton" text="Find Path" onAction="#handleFindPath" />
+                    <ComboBox fx:id="priorityComboBox" style="-fx-text-fill: white; -fx-display-text-fill: white;">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="DISTANCE"/>
+                                <String fx:value="TIME"/>
+                                <String fx:value="COST"/>
+                                <String fx:value="TRANSPORTS"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+
+                </ToolBar>
+
+            </top>
+            <left>
+                <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" style="-fx-background-color: #302836">
+                    <tabs>
+                        <Tab text="Stops">
+                            <content>
+                                <ScrollPane fitToWidth="true" style="-fx-background-color: #302836; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #AA7CFB; -fx-border-width: 2;">
+                                    <content>
+                                        <VBox fx:id="stopListVBox" spacing="5" style="-fx-padding: 5; -fx-background-color: #302836">
+                                            <Button text="+" fx:id="addStopButton" onAction="#handleAddStop"
+                                                    maxWidth="Infinity" style="-fx-alignment: center; -fx-background-color: #302836;  -fx-border-color: #AA7CFB; -fx-border-width: 2; -fx-border-radius: 5; -fx-text-fill: #FFFFFF;"/>
+                                        </VBox>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </Tab>
+                        <Tab text="Routes">
+                            <content>
+                                <ScrollPane fitToWidth="true" style="-fx-background-color: #302836; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #AA7CFB; -fx-border-width: 2;">
+                                    <content>
+                                        <VBox fx:id="routeListVBox" spacing="5" style="-fx-padding: 5; -fx-background-color: #302836; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #AA7CFB;"/>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+            </left>
+            <center>
+                <Pane fx:id="mapPane" prefHeight="354.0" prefWidth="401.0" BorderPane.alignment="CENTER"
+                      onMouseMoved="#handleMouseMove" onMouseClicked="#handleMouseClick"
+                      style="-fx-background-color: #56525C; -fx-border-color: black; -fx-border-width: 1;"/>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>
