@@ -1,6 +1,8 @@
 package Visual;
 
 //import Mail.Welcome;
+import backend.Mail.Welcome;
+import com.google.firebase.internal.FirebaseService;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -196,11 +198,17 @@ public class Login extends Application {
             //Haz que pueda obtener el texto del campo de contraseña
             String password = ((PasswordField)((StackPane)passwordField).getChildren().get(1)).getText();
 
+            String userId = username.toLowerCase().replaceAll("\\s+", "_");
+
+            // Crea una instancia del servicio y guarda los datos
+          /*  FirebaseService firebaseService = new FirebaseService();
+            firebaseService.saveUser(userId, email, username);*/
+
             // Agregar la lógica para registrar al usuario en tu base de datos
 
             // Envía el correo de confirmación
             String subject = "¡Bienvenido a NodeMap!";
-            //Welcome.sendEmail(email, subject, username, password);
+            Welcome.sendEmail(email, subject, username, password);
 
             System.out.println("Correo enviado correctamente!");
             //showLoginForm(screenBounds);

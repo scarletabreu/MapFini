@@ -2,11 +2,29 @@ import Visual.Login;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.getIcons().add(new javafx.scene.image.Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png"));
+        File file = new File("C:\\Users\\Scarlet\\Downloads\\TheMap.png");
+
+        // Convert the file path to a URI
+        URI uri = file.toURI();
+
+        // Convert the URI to a URL
+        URL url = null;
+        try {
+            url = uri.toURL();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+        assert url != null;
+        primaryStage.getIcons().add(new javafx.scene.image.Image(url.toString()));
         Login login = new Login();
         login.start(primaryStage);
     }
