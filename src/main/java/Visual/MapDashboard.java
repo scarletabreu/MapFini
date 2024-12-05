@@ -1,5 +1,7 @@
 package Visual;
 
+import DataBase.MapDB;
+import DataBase.UserDB;
 import backend.Classes.Stop;
 import backend.Controller.WorldMap;
 import backend.Enum.Priority;
@@ -33,6 +35,7 @@ public class MapDashboard {
     @FXML private Button addStopButton;
     @FXML private Button enrouteButton;
     @FXML private Button findPathButton;
+    @FXML private Button exitButton;
     @FXML private ComboBox<String> priorityComboBox = new ComboBox<>();
 
     private Priority selectedPriority;
@@ -47,6 +50,8 @@ public class MapDashboard {
     private Stop pathStart = null;
     private final HashMap<Pair<Stop, Stop>, Line> routeLines;
     private List<Line> highlightedPath;
+
+    private MapDB mapDB = new MapDB();
 
     public MapDashboard() {
         stopCircles = new HashMap<>();
@@ -89,6 +94,50 @@ public class MapDashboard {
 
         routeListVBox.setPadding(new Insets(5));
         routeListVBox.setSpacing(5);
+
+        exitButton.setOnAction(event -> {
+
+            if(mapDB.create(worldMap)){
+                System.out.println("Se ha podido crear la instancia de mapa en la firebase");
+                Stage stage = (Stage) exitButton.getScene().getWindow();
+                stage.close();
+            }else{
+                System.out.println("No se pudo guardar los datos :0");
+                Stage stage = (Stage) exitButton.getScene().getWindow();
+                stage.close();
+            }
+
+        });
+
+        exitButton.setStyle(
+                "-fx-background-color: #302836; " +
+                        "-fx-text-fill: #FEFEFE; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #AA7CFB; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
+        );
+
+        exitButton.setOnMouseEntered(e -> exitButton.setStyle(
+                "-fx-background-color: #AA7CFB; " +
+                        "-fx-text-fill: #FEFEFE; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #302836; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
+        ));
+
+        exitButton.setOnMouseExited(e -> exitButton.setStyle(
+                "-fx-background-color: #302836; " +
+                        "-fx-text-fill: #FEFEFE; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #AA7CFB; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
+        ));
 
         addStopButton.setStyle(
                 "-fx-background-color: #302836; " +
@@ -226,23 +275,19 @@ public class MapDashboard {
         mapPane.setStyle("-fx-background-color: #56525C; -fx-background-radius: 15;");
 
 
-        // Set up the StringConverter to convert between strings and enum values
         priorityComboBox.setConverter(new StringConverter<String>() {
             @Override
             public String toString(String enumValue) {
-                return enumValue; // Display the string representation
+                return enumValue;
             }
 
             @Override
             public String fromString(String stringValue) {
-                // Convert the string to the appropriate Enum value
                 return stringValue;
             }
         });
 
-        // Optional: Add a listener to handle the selected value change
         priorityComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            // Here you can handle the selected value, convert to enum, etc.
             selectedPriority = Priority.valueOf(newValue);
         });
 
@@ -304,12 +349,10 @@ public class MapDashboard {
             return;
         }
 
-        // Highlight the path
         for (int i = 0; i < path.size() - 1; i++) {
             Stop current = path.get(i);
             Stop next = path.get(i + 1);
 
-            // Find the line corresponding to this route
             Pair<Stop, Stop> routePair = new Pair<>(current, next);
             Line line = routeLines.get(routePair);
 

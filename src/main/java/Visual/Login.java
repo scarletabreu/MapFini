@@ -27,6 +27,8 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public class Login extends Application {
     private StackPane mainContainer;
     private UserDB userDB = new UserDB();
@@ -34,7 +36,7 @@ public class Login extends Application {
     @Override
     public void start(Stage primaryStage) {
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        primaryStage.getIcons().add(new Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png"));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm()));
 
         // Crea el contenedor principal y establece el fondo de gradiente
         mainContainer = new StackPane();
@@ -80,7 +82,7 @@ public class Login extends Application {
         );
 
         // Logo section
-        Image logo = new Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png");
+        Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
         ImageView logoView = new ImageView(logo);
         logoView.setFitWidth(150);
         logoView.setFitHeight(150);
@@ -165,7 +167,7 @@ public class Login extends Application {
         );
 
         // Logo section
-        Image logo = new Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png");
+        Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
         ImageView logoView = new ImageView(logo);
         logoView.setFitWidth(150);
         logoView.setFitHeight(150);

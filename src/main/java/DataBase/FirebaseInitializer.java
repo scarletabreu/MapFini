@@ -1,7 +1,6 @@
 package DataBase;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -16,7 +15,7 @@ public class FirebaseInitializer {
     private FirebaseInitializer() {
         try {
             // Cargar el archivo credentials.json desde el classpath
-            InputStream serviceAccount = getClass().getResourceAsStream("/credentials.json");
+            InputStream serviceAccount = getClass().getResourceAsStream("/environment/credentials.json");
             if (serviceAccount == null) {
                 throw new RuntimeException("Archivo credentials.json no encontrado en el classpath.");
             }

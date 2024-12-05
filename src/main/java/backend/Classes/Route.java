@@ -1,18 +1,22 @@
 package backend.Classes;
 
 import backend.Enum.Traffic;
+import com.google.cloud.firestore.annotation.DocumentId;
 
 public class Route {
-    private final Stop start;
-    private final Stop end;
+    @DocumentId
+    private int counter = 0;
+    private String id;
+    private final int start;
+    private final int end;
     private final int distance;
     private final int time;
     private int cost;
     private int transports;
     private Traffic traffic;
 
-
-    public Route(Stop start, Stop end, int distance, int time, int cost, int transports) {
+    public Route(Integer start, Integer end, int distance, int time, int cost, int transports) {
+        this.id = String.valueOf(++counter);
         this.start = start;
         this.end = end;
         this.distance = distance;
@@ -20,6 +24,22 @@ public class Route {
         this.cost = cost;
         this.transports = transports;
         this.traffic = null;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Traffic getTraffic() {
+        return traffic;
+    }
+
+    public void setTraffic(Traffic traffic) {
+        this.traffic = traffic;
     }
 
     public int getTransports() {
@@ -30,11 +50,11 @@ public class Route {
         this.transports = transports;
     }
 
-    public Stop getStart() {
+    public Integer getStart() {
         return start;
     }
 
-    public Stop getEnd() {
+    public Integer getEnd() {
         return end;
     }
 

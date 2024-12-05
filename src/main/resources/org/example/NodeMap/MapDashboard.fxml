@@ -11,6 +11,7 @@
                 <ToolBar prefHeight="46.0" prefWidth="600.0" BorderPane.alignment="CENTER" style="-fx-background-color: #302836;">
                     <Button fx:id="enrouteButton" text="Enroute Stops" onAction="#handleEnroute" />
                     <Button fx:id="findPathButton" text="Find Path" onAction="#handleFindPath" />
+                    <Button fx:id="exitButton" text="Exit"/>
                     <ComboBox fx:id="priorityComboBox" style="-fx-text-fill: white; -fx-display-text-fill: white;">
                         <items>
                             <FXCollections fx:factory="observableArrayList">
