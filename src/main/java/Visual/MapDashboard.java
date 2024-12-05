@@ -420,7 +420,7 @@ public class MapDashboard {
 
         double x = hoverCircle.getCenterX();
         double y = hoverCircle.getCenterY();
-        Stop newStop = new Stop(x, y);
+        Stop newStop = new Stop("name",x,y);
         worldMap.addStop(newStop);
 
         Circle stopCircle = new Circle(x, y, 10, Color.RED);
