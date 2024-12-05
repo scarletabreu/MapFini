@@ -133,27 +133,22 @@ public class Login extends Application {
 
             UserDB userDB = new UserDB();
 
-            // Verificar si el usuario existe y la contraseña es correcta
             if (userDB.checkLogin(username, password)) {
                 System.out.println("Login exitoso.");
                 Stage dashboardStage = new Stage();
                 MainDashboard.showDashboard(dashboardStage);
-                ((Stage) container.getScene().getWindow()).close(); // Cerrar la ventana actual
-                // Aquí puedes agregar la lógica para cambiar a la siguiente vista o página
+                ((Stage) container.getScene().getWindow()).close();
             } else {
                 System.out.println("Nombre de usuario o contraseña incorrectos.");
-                // Aquí puedes mostrar un mensaje de error en la interfaz
             }
         });
 
-        // Agrega los elementos al contenedor principal
         container.getChildren().addAll(
                 logoContainer, titleLabel, usernameField, passwordField, rememberForgotContainer, loginButton, signUpContainer
         );
 
         return container;
     }
-
 
     private void showSignUpForm(Rectangle2D screenBounds) {
         VBox signUpContainer = new VBox(30);
@@ -242,23 +237,6 @@ public class Login extends Application {
             } else {
                 System.out.println("Error al registrar el usuario.");
             }
-
-
-        // Envía el correo de confirmación
-            String subject = "¡Bienvenido a NodeMap!";
-            Welcome.sendEmail(email, subject, username, password);
-
-            System.out.println("Correo enviado correctamente!");
-            Stage dashboardStage = new Stage();
-            MainDashboard.showDashboard(dashboardStage);
-
-            // Close the current window
-            if (signUpContainer.getScene() != null) {
-                ((Stage) signUpContainer.getScene().getWindow()).close();
-            } else {
-                System.out.println("No se pudo cerrar la ventana: signUpContainer no está en la escena actual.");
-            }
-
         });
 
         // Agrega los elementos al contenedor de registro
