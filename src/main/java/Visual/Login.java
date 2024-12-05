@@ -29,7 +29,7 @@ import javafx.stage.Stage;
 
 public class Login extends Application {
     private StackPane mainContainer;
-    private UserDB userDB = new UserDB();
+    private final UserDB userDB = new UserDB();
 
     @Override
     public void start(Stage primaryStage) {
