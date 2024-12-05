@@ -1,24 +1,22 @@
 package backend.Classes;
 
+import com.google.cloud.firestore.annotation.DocumentId;
 import javafx.geometry.Point2D;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Stop {
+    @DocumentId
     private static int counter = 0;
     private final int id;
     private final List<Stop> adjacencyList;
     private HashMap<Stop, Integer[]> routeAttributes = new HashMap<>();
-
-    // New field for location using Point2D
     private final Point2D location;
 
     public Stop(List<Stop> vertices, int[] distance, int[] time, int[] price, int[] transports, double x, double y) {
         this.id = ++counter;
-        this.location = new Point2D(x, y); // Set the location using Point2D
-
+        this.location = new Point2D(x, y);
         adjacencyList = new ArrayList<>();
         for (int ind = 0; ind < distance.length; ind++) {
             adjacencyList.add(vertices.get(ind));
