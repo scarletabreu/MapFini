@@ -1,8 +1,10 @@
 package Visual;
 
-//import Mail.Welcome;
+import DataBase.*;
+import DataBase.FirebaseService;
+import backend.Classes.User;
 import backend.Mail.Welcome;
-import com.google.firebase.internal.FirebaseService;
+//import com.google.firebase.internal.FirebaseService;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,6 +28,7 @@ import javafx.stage.Stage;
 
 public class Login extends Application {
     private StackPane mainContainer;
+    private UserDB userDB = new UserDB();
 
     @Override
     public void start(Stage primaryStage) {
@@ -195,23 +198,42 @@ public class Login extends Application {
         signUpButton.setOnAction(e -> {
             String email = emailField.getText();
             String username = usernameField.getText();
-            //Haz que pueda obtener el texto del campo de contraseña
-            String password = ((PasswordField)((StackPane)passwordField).getChildren().get(1)).getText();
+            String password = ((PasswordField) ((StackPane) passwordField).getChildren().get(1)).getText();
+
+            if (email.isEmpty() || username.isEmpty() || password.isEmpty()) {
+                System.out.println("Todos los campos son obligatorios.");
+                return;
+            }
 
             String userId = username.toLowerCase().replaceAll("\\s+", "_");
 
-            // Crea una instancia del servicio y guarda los datos
-          /*  FirebaseService firebaseService = new FirebaseService();
-            firebaseService.saveUser(userId, email, username);*/
+            // Crea el nuevo usuario
+            User newUser = new User(userId, username, email, password);
 
-            // Agregar la lógica para registrar al usuario en tu base de datos
+            // Guarda en Firestore
+            if (userDB.create(newUser)) {
+                System.out.println("Usuario registrado con éxito.");
+                // Envía correo de bienvenida
+                String subject = "¡Bienvenido a NodeMap!";
+                Welcome.sendEmail(email, subject, username, password);
+                System.out.println("Correo enviado correctamente.");
 
-            // Envía el correo de confirmación
+                // Muestra el dashboard
+                Stage dashboardStage = new Stage();
+                MainDashboard.showDashboard(dashboardStage);
+
+                // Cierra la ventana actual
+                ((Stage) signUpContainer.getScene().getWindow()).close();
+            } else {
+                System.out.println("Error al registrar el usuario.");
+            }
+
+
+        // Envía el correo de confirmación
             String subject = "¡Bienvenido a NodeMap!";
             Welcome.sendEmail(email, subject, username, password);
 
             System.out.println("Correo enviado correctamente!");
-            //showLoginForm(screenBounds);
             Stage dashboardStage = new Stage();
             MainDashboard.showDashboard(dashboardStage);
 

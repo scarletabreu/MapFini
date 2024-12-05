@@ -1,16 +1,13 @@
 package DataBase;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 
-import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 public class FirebaseInitializer {
     private static FirebaseInitializer instance;
@@ -18,24 +15,27 @@ public class FirebaseInitializer {
 
     private FirebaseInitializer() {
         try {
+            // Cargar el archivo credentials.json desde el classpath
             InputStream serviceAccount = getClass().getResourceAsStream("/credentials.json");
-            File file = new File("C:\\Users\\Scarlet\\Documents\\test.json");
-            assert serviceAccount != null;
-            Files.copy(serviceAccount, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            Paths.get(serviceAccount.toString()); // Check if the file exists. This line will throw an exception if the file does not exist.
+            if (serviceAccount == null) {
+                throw new RuntimeException("Archivo credentials.json no encontrado en el classpath.");
+            }
 
+            // Configurar Firebase con las credenciales
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
+            // Inicializar FirebaseApp si aún no está inicializado
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
 
+            // Obtener instancia de Firestore
             firestore = FirestoreClient.getFirestore();
             System.out.println("Firestore inicializado correctamente.");
         } catch (Exception e) {
-            throw new RuntimeException("Error al inicializar Firebase: " + e.getMessage());
+            throw new RuntimeException("Error al inicializar Firebase: " + e.getMessage(), e);
         }
     }
 

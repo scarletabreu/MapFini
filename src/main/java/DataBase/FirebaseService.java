@@ -3,7 +3,6 @@ package DataBase;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -15,16 +14,14 @@ public class FirebaseService {
         this.firestore = FirebaseInitializer.getInstance().getFirestore();
     }
 
-    // Método para guardar datos de usuario
-    public void saveUser(String userId, String email, String username) {
-        // Crea un mapa con los datos del usuario
+    public void saveUser(String userId, String email, String username, String password) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
-        userData.put("username", username);
+        userData.put("name", username);
+        userData.put("password", password);
 
         try {
-            // Guarda el documento en la colección "users"
-            DocumentReference docRef = firestore.collection("users").document(userId);
+            DocumentReference docRef = firestore.collection("User").document(userId);
             WriteResult result = docRef.set(userData).get();
             System.out.println("Datos guardados en Firebase: " + result.getUpdateTime());
         } catch (InterruptedException | ExecutionException e) {
