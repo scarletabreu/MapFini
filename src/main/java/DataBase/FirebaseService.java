@@ -14,6 +14,10 @@ public class FirebaseService {
         this.firestore = FirebaseInitializer.getInstance().getFirestore();
     }
 
+    public static String generateId() {
+        return FirebaseInitializer.getInstance().getFirestore().collection("User").document().getId();
+    }
+
     public void saveUser(String userId, String email, String username, String password) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
