@@ -5,6 +5,7 @@ import DataBase.FirebaseService;
 import backend.Classes.User;
 import backend.Mail.Welcome;
 //import com.google.firebase.internal.FirebaseService;
+import com.google.cloud.firestore.QuerySnapshot;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -126,7 +127,24 @@ public class Login extends Application {
                         "-fx-font-size: 16px;" +
                         "-fx-effect: dropshadow(gaussian, rgba(140,82,242,0.3), 10, 0, 0, 4);"
         );
-        loginButton.setOnAction(e -> System.out.println("Login button clicked"));
+        loginButton.setOnAction(e -> {
+            String username = usernameField.getText();
+            String password = ((PasswordField) ((StackPane) passwordField).getChildren().get(1)).getText();
+
+            UserDB userDB = new UserDB();
+
+            // Verificar si el usuario existe y la contraseña es correcta
+            if (userDB.checkLogin(username, password)) {
+                System.out.println("Login exitoso.");
+                Stage dashboardStage = new Stage();
+                MainDashboard.showDashboard(dashboardStage);
+                ((Stage) container.getScene().getWindow()).close(); // Cerrar la ventana actual
+                // Aquí puedes agregar la lógica para cambiar a la siguiente vista o página
+            } else {
+                System.out.println("Nombre de usuario o contraseña incorrectos.");
+                // Aquí puedes mostrar un mensaje de error en la interfaz
+            }
+        });
 
         // Agrega los elementos al contenedor principal
         container.getChildren().addAll(
@@ -135,6 +153,7 @@ public class Login extends Application {
 
         return container;
     }
+
 
     private void showSignUpForm(Rectangle2D screenBounds) {
         VBox signUpContainer = new VBox(30);
@@ -205,24 +224,20 @@ public class Login extends Application {
                 return;
             }
 
-            String userId = username.toLowerCase().replaceAll("\\s+", "_");
-
-            // Crea el nuevo usuario
-            User newUser = new User(userId, username, email, password);
+            String userId = FirebaseService.generateId();
+            User newUser = new User(userId, username, password, email);
 
             // Guarda en Firestore
             if (userDB.create(newUser)) {
                 System.out.println("Usuario registrado con éxito.");
-                // Envía correo de bienvenida
+
                 String subject = "¡Bienvenido a NodeMap!";
                 Welcome.sendEmail(email, subject, username, password);
                 System.out.println("Correo enviado correctamente.");
 
-                // Muestra el dashboard
                 Stage dashboardStage = new Stage();
                 MainDashboard.showDashboard(dashboardStage);
 
-                // Cierra la ventana actual
                 ((Stage) signUpContainer.getScene().getWindow()).close();
             } else {
                 System.out.println("Error al registrar el usuario.");

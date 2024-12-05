@@ -1,6 +1,9 @@
 package backend.Classes;
 
+import com.google.cloud.firestore.annotation.DocumentId;
+
 public class User {
+    @DocumentId
     private String id;
     private String username;
     private String password;
@@ -12,6 +15,13 @@ public class User {
         this.username = username;
         this.password = password;
         this.email = email;
+    }
+
+    public User(){
+        this.id = "";
+        this.username = "";
+        this.password = "";
+        this.email = "";
     }
 
     public String getId() {
@@ -27,5 +37,17 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String mail) {
+        this.email = mail;
+    }
+
+    public void setPassword(String pass) {
+        this.password = pass;
+    }
+
+    public void setUsername(String user) {
+        this.username = user;
     }
 }

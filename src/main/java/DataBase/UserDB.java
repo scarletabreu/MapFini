@@ -1,10 +1,7 @@
 package DataBase;
 
-import DataBase.FirebaseInitializer;
 import backend.Classes.User;
-import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -176,6 +173,29 @@ public class UserDB {
         }
         return true;
     }
+
+    public boolean checkLogin(String username, String password) {
+        try {
+            QuerySnapshot querySnapshot = db.collection(COLLECTION_NAME)
+                    .whereEqualTo("username", username)
+                    .get()
+                    .get();
+
+            if (!querySnapshot.isEmpty()) {
+                // Obtiene el primer documento que coincida con el username
+                DocumentSnapshot document = querySnapshot.getDocuments().get(0); // usa get(0) en vez de getFirst()
+
+                User user = document.toObject(User.class);
+
+                // Si las contraseñas están cifradas, usa un método de comparación de hash como BCrypt
+                return user.getPassword().equals(password); // Si las contraseñas no están cifradas
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            handleException(e, "verificar login");
+        }
+        return false;
+    }
+
 
     /**
      * Maneja excepciones comunes.
