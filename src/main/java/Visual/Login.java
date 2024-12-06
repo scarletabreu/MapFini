@@ -1,11 +1,7 @@
 package Visual;
 
-import DataBase.*;
-import DataBase.FirebaseService;
 import backend.Classes.User;
 import backend.Mail.Welcome;
-//import com.google.firebase.internal.FirebaseService;
-import com.google.cloud.firestore.QuerySnapshot;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -27,14 +23,15 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public class Login extends Application {
     private StackPane mainContainer;
-    private final UserDB userDB = new UserDB();
 
     @Override
     public void start(Stage primaryStage) {
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        primaryStage.getIcons().add(new Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png"));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm()));
 
         // Crea el contenedor principal y establece el fondo de gradiente
         mainContainer = new StackPane();
@@ -80,7 +77,7 @@ public class Login extends Application {
         );
 
         // Logo section
-        Image logo = new Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png");
+        Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
         ImageView logoView = new ImageView(logo);
         logoView.setFitWidth(150);
         logoView.setFitHeight(150);
@@ -131,7 +128,7 @@ public class Login extends Application {
             String username = usernameField.getText();
             String password = ((PasswordField) ((StackPane) passwordField).getChildren().get(1)).getText();
 
-            UserDB userDB = new UserDB();
+           /* UserDB userDB = new UserDB();
 
             if (userDB.checkLogin(username, password)) {
                 System.out.println("Login exitoso.");
@@ -140,7 +137,7 @@ public class Login extends Application {
                 ((Stage) container.getScene().getWindow()).close();
             } else {
                 System.out.println("Nombre de usuario o contraseña incorrectos.");
-            }
+            }*/
         });
 
         container.getChildren().addAll(
@@ -165,7 +162,7 @@ public class Login extends Application {
         );
 
         // Logo section
-        Image logo = new Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png");
+        Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
         ImageView logoView = new ImageView(logo);
         logoView.setFitWidth(150);
         logoView.setFitHeight(150);
@@ -219,7 +216,7 @@ public class Login extends Application {
                 return;
             }
 
-            String userId = FirebaseService.generateId();
+           /* String userId = FirebaseService.generateId();
             User newUser = new User(userId, username, password, email);
 
             // Guarda en Firestore
@@ -236,7 +233,7 @@ public class Login extends Application {
                 ((Stage) signUpContainer.getScene().getWindow()).close();
             } else {
                 System.out.println("Error al registrar el usuario.");
-            }
+            }*/
         });
 
         // Agrega los elementos al contenedor de registro

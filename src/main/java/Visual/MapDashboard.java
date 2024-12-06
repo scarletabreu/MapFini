@@ -1,5 +1,6 @@
 package Visual;
 
+
 import backend.Classes.Stop;
 import backend.Controller.WorldMap;
 import backend.Enum.Priority;
@@ -29,6 +30,8 @@ public class MapDashboard {
     @FXML private Button addStopButton;
     @FXML private Button enrouteButton;
     @FXML private Button findPathButton;
+    @FXML private Button exitButton;
+    @FXML private ComboBox<String> priorityComboBox = new ComboBox<>();
     @FXML private ComboBox<String> priorityComboBox;
 
     private Priority selectedPriority;
@@ -73,6 +76,60 @@ public class MapDashboard {
         routeListVBox.setSpacing(5);
         routeListVBox.setStyle(createDarkStyle());
     }
+
+        exitButton.setOnAction(event -> {
+
+            /*if(mapDB.create(worldMap)){
+                System.out.println("Se ha podido crear la instancia de mapa en la firebase");
+                Stage stage = (Stage) exitButton.getScene().getWindow();
+                stage.close();
+            }else{
+                System.out.println("No se pudo guardar los datos :0");
+                Stage stage = (Stage) exitButton.getScene().getWindow();
+                stage.close();
+            }*/
+
+        });
+
+        exitButton.setStyle(
+                "-fx-background-color: #302836; " +
+                        "-fx-text-fill: #FEFEFE; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #AA7CFB; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
+        );
+
+        exitButton.setOnMouseEntered(e -> exitButton.setStyle(
+                "-fx-background-color: #AA7CFB; " +
+                        "-fx-text-fill: #FEFEFE; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #302836; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
+        ));
+
+        exitButton.setOnMouseExited(e -> exitButton.setStyle(
+                "-fx-background-color: #302836; " +
+                        "-fx-text-fill: #FEFEFE; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #AA7CFB; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
+        ));
+
+        addStopButton.setStyle(
+                "-fx-background-color: #302836; " +
+                        "-fx-text-fill: #FEFEFE; " +
+                        "-fx-font-size: 16px; " +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #AA7CFB; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
+        );
 
     private void configureButtons() {
         styleButton(addStopButton);
@@ -174,6 +231,22 @@ public class MapDashboard {
         stopListVBox.getChildren().add(stopButton);
         stopListVBox.getChildren().add(addStopButton);
 
+        priorityComboBox.setConverter(new StringConverter<String>() {
+            @Override
+            public String toString(String enumValue) {
+                return enumValue;
+            }
+
+            @Override
+            public String fromString(String stringValue) {
+                return stringValue;
+            }
+        });
+
+        priorityComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            selectedPriority = Priority.valueOf(newValue);
+        });
+
         isAddingStop = false;
         hoverCircle.setVisible(false);
     }
@@ -253,6 +326,7 @@ public class MapDashboard {
             return;
         }
 
+
         highlightPath(path);
     }
 
@@ -260,6 +334,10 @@ public class MapDashboard {
         for (int i = 0; i < path.size() - 1; i++) {
             Stop current = path.get(i);
             Stop next = path.get(i + 1);
+
+            Pair<Stop, Stop> routePair = new Pair<>(current, next);
+            Line line = routeLines.get(routePair);
+
 
             Line line = routeLines.get(new Pair<>(current, next));
             if (line != null) {
@@ -284,6 +362,44 @@ public class MapDashboard {
         hoverCircle.setVisible(true);
         mapPane.requestFocus();
     }
+
+
+    @FXML
+    private void handleMouseMove(MouseEvent event) {
+        if (!isAddingStop) return;
+
+        Bounds mapBounds = mapPane.getBoundsInLocal();
+        double x = Math.min(Math.max(event.getX(), hoverCircle.getRadius()),
+                mapBounds.getWidth() - hoverCircle.getRadius());
+        double y = Math.min(Math.max(event.getY(), hoverCircle.getRadius()),
+                mapBounds.getHeight() - hoverCircle.getRadius());
+
+        hoverCircle.setCenterX(x);
+        hoverCircle.setCenterY(y);
+    }
+
+    @FXML
+    private void handleMouseClick(MouseEvent event) {
+        if (isAddingStop) {
+            handleStopPlacement(event);
+        }
+    }
+
+    private void handleStopPlacement(MouseEvent event) {
+        Bounds mapBounds = mapPane.getBoundsInLocal();
+        if (!mapBounds.contains(event.getX(), event.getY())) {
+            return;
+        }
+
+        double x = hoverCircle.getCenterX();
+        double y = hoverCircle.getCenterY();
+        Stop newStop = new Stop("name",x,y);
+        worldMap.addStop(newStop);
+
+        Circle stopCircle = new Circle(x, y, 10, Color.RED);
+        stopCircle.setOnMouseClicked(e -> handleStopCircleClick(newStop));
+        mapPane.getChildren().add(stopCircle);
+        stopCircles.put(newStop, stopCircle);
 
     private void createRoute(Stop start, Stop end, int distance, int time, int cost, int transport) {
         Line line = createRouteLine(start, end);

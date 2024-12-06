@@ -1,57 +1,43 @@
-import DataBase.FirebaseInitializer;
-import DataBase.UserDB;
-import backend.Classes.User;
-import com.google.api.core.ApiFuture;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
+import backend.Classes.Route;
+import backend.Classes.Stop;
+import backend.Controller.WorldMap;
+import backend.Files.WorldMapJsonManager;
 
-import java.io.*;
-import java.util.Map;
+import java.util.ArrayList;
 
 public class Prueba {
     public static void main(String[] args) {
-        // Inicializar Firestore (asegurarte de haber configurado correctamente Firebase)
-        Firestore db = FirebaseInitializer.getInstance().getFirestore();
+        WorldMapJsonManager manager = new WorldMapJsonManager();
 
-        // Crear un objeto User
-        User user = new User("user123", "johndoe", "password123", "johndoe@example.com");
+        // Crear un WorldMap
+        ArrayList<Stop> stops = new ArrayList<>();
+        ArrayList<Route> routes = new ArrayList<>();
+        stops.add(new Stop("hola", 0,0));
+        stops.add(new Stop("adios", 1,1));
+        routes.add(new Route(1, 2, 100, 60, 50, 1));
+        WorldMap worldMap = new WorldMap(stops, routes);
 
-        // Crear el objeto UserDB para interactuar con la base de datos
-        UserDB userDB = new UserDB();
+        // Guardar el WorldMap
+        manager.saveWorldMap(worldMap);
 
-        // Crear un nuevo usuario en Firestore
-        boolean userCreated = userDB.create(user);
-        if (userCreated) {
-            System.out.println("Usuario creado correctamente en Firestore.");
-        } else {
-            System.err.println("Hubo un problema al crear el usuario.");
+        // Cargar y mostrar todos los WorldMaps
+        ArrayList<WorldMap> worldMaps = manager.loadWorldMaps();
+        System.out.println("WorldMaps guardados:");
+        for (WorldMap wm : worldMaps) {
+            System.out.println("ID: " + wm.getId() + ", Stops: " + wm.getStops().size() + ", Routes: " + wm.getStops().size());
         }
 
-        // Recuperar el usuario por ID
-        User retrievedUser = userDB.get(user.getId());
-        if (retrievedUser != null) {
-            System.out.println("Usuario recuperado: " + retrievedUser.getUsername());
-            System.out.println("Correo electrónico: " + retrievedUser.getEmail());
-        } else {
-            System.err.println("No se pudo recuperar el usuario.");
+        // Buscar un WorldMap por ID
+        WorldMap foundMap = manager.findWorldMapById(worldMap.getId());
+        if (foundMap != null) {
+            System.out.println("WorldMap encontrado: ID - " + foundMap.getId());
         }
 
-        // Actualizar un campo del usuario (por ejemplo, el email)
-        user.setEmail("newemail@example.com");
-        userDB.update(user);
+        // Actualizar un WorldMap
+        worldMap.createStop(new Stop("adios", 1,1));
+        manager.updateWorldMap(worldMap);
 
-        // Verificar la actualización
-        User updatedUser = userDB.get(user.getId());
-        if (updatedUser != null) {
-            System.out.println("Usuario actualizado: " + updatedUser.getUsername());
-            System.out.println("Nuevo correo electrónico: " + updatedUser.getEmail());
-        }
-
-        // Eliminar el usuario
-        //userDB.delete(user.getId());
+        // Eliminar un WorldMap por ID
+        manager.deleteWorldMapById(worldMap.getId());
     }
 }

@@ -10,6 +10,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.util.Objects;
+
 public class Sidebar extends VBox {
 
     public Sidebar() {
@@ -17,7 +19,6 @@ public class Sidebar extends VBox {
         this.setPrefWidth(width);
         this.setMaxWidth(width);
 
-        // Alinear el Sidebar a la izquierda del StackPane
         StackPane.setAlignment(this, Pos.CENTER_LEFT);
 
         this.setSpacing(20);
@@ -25,9 +26,9 @@ public class Sidebar extends VBox {
                 "-fx-background-color: #302836; " +
                         "-fx-padding: 20; " +
                         "-fx-background-radius: 10; " +
-                        "-fx-border-color: #AA7CFB; " +       // Color del borde
-                        "-fx-border-width: 2px; " +           // Ancho del borde
-                        "-fx-border-radius: 10;"              // Radio del borde para redondear las esquinas
+                        "-fx-border-color: #AA7CFB; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 10;"
         );
 
         this.setTranslateX(-width);
@@ -43,7 +44,7 @@ public class Sidebar extends VBox {
         this.getChildren().add(closeButton); // Añadir el botón al Sidebar
 
         try {
-            Image image = new Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/DarkUser.png");
+            Image image = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/DarkUser.png")).toExternalForm());
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(50);
             imageView.setFitHeight(50);
