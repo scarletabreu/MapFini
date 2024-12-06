@@ -1,6 +1,5 @@
 package Visual;
 
-import DataBase.MapDB;
 import backend.Controller.WorldMap;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -112,7 +111,7 @@ public class MainDashboard extends Application {
 
         openMapBtn.setOnAction(e -> {
             System.out.println("Abrir el mapa");
-            loadMapData();
+            // Cargar los mapas del usuario
         });
         Button createMapBtn = createPurpleButton("Create Map");
 
@@ -191,19 +190,6 @@ public class MainDashboard extends Application {
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         primaryStage.show();
-    }
-
-    private void loadMapData() {
-        MapDB mapDB = new MapDB();
-        List<WorldMap> maps = mapDB.getAll();
-
-        if (maps.isEmpty()) {
-            System.out.println("No hay mapas disponibles.");
-        } else {
-            for (WorldMap map : maps) {
-                System.out.println("Mapa ID: " + map.getId());
-            }
-        }
     }
 
     private Sidebar findSidebarInStackPane(StackPane mainContainer) {

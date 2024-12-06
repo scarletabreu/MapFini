@@ -1,11 +1,9 @@
 package backend.Classes;
 
 import backend.Controller.WorldMap;
-import com.google.cloud.firestore.annotation.DocumentId;
 import java.util.List;
 
 public class User {
-    @DocumentId
     private String id;
     private String username;
     private String password;

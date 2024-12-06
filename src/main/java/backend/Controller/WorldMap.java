@@ -2,12 +2,9 @@ package backend.Controller;
 
 import backend.Classes.*;
 import backend.Enum.Priority;
-import com.google.cloud.firestore.annotation.DocumentId;
-
 import java.util.*;
 
 public class WorldMap {
-    @DocumentId
     private static int counter = 0;
     private String id;
     private final ArrayList<Stop> stops;

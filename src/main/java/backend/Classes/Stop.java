@@ -1,14 +1,11 @@
 package backend.Classes;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.cloud.firestore.annotation.DocumentId;
 import javafx.geometry.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Stop {
-    @DocumentId
     private static int counter = 0;
     private final int id;
     private final List<Integer> adjacencyList;

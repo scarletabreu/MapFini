@@ -1,10 +1,8 @@
 package backend.Classes;
 
 import backend.Enum.Traffic;
-import com.google.cloud.firestore.annotation.DocumentId;
 
 public class Route {
-    @DocumentId
     private int counter = 0;
     private String id;
     private final int start;

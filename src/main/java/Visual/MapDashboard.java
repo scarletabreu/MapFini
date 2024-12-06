@@ -1,7 +1,6 @@
 package Visual;
 
-import DataBase.MapDB;
-import DataBase.UserDB;
+
 import backend.Classes.Stop;
 import backend.Controller.WorldMap;
 import backend.Enum.Priority;
@@ -51,8 +50,6 @@ public class MapDashboard {
     private final HashMap<Pair<Stop, Stop>, Line> routeLines;
     private List<Line> highlightedPath;
 
-    private MapDB mapDB = new MapDB();
-
     public MapDashboard() {
         stopCircles = new HashMap<>();
         routeLines = new HashMap<>();
@@ -97,7 +94,7 @@ public class MapDashboard {
 
         exitButton.setOnAction(event -> {
 
-            if(mapDB.create(worldMap)){
+            /*if(mapDB.create(worldMap)){
                 System.out.println("Se ha podido crear la instancia de mapa en la firebase");
                 Stage stage = (Stage) exitButton.getScene().getWindow();
                 stage.close();
@@ -105,7 +102,7 @@ public class MapDashboard {
                 System.out.println("No se pudo guardar los datos :0");
                 Stage stage = (Stage) exitButton.getScene().getWindow();
                 stage.close();
-            }
+            }*/
 
         });
 
