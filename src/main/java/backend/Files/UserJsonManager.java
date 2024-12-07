@@ -21,14 +21,34 @@ public class UserJsonManager {
 
     // Guardar un usuario en el archivo JSON
     public boolean saveUser(User user) {
+        if (user == null) {
+            System.err.println("Error: El usuario no puede ser nulo.");
+            return false;
+        }
+
         List<User> users = loadUsers();
         if (users == null) {
             users = new ArrayList<>();
         }
+
+        if (users.stream().anyMatch(existingUser -> existingUser.getId().equals(user.getId()))) {
+            System.err.println("Error: El usuario ya existe con el ID: " + user.getId());
+            return false;
+        }
+
+        // Agregar el nuevo usuario
         users.add(user);
-        saveUsersToFile(users);
-        return true;
+
+        // Guardar la lista actualizada en el archivo
+        if (saveUsersToFile(users)) {
+            System.out.println("Usuario guardado exitosamente.");
+            return true;
+        } else {
+            System.err.println("Error: No se pudo guardar el usuario.");
+            return false;
+        }
     }
+
 
     // Cargar todos los usuarios desde el archivo JSON
     public List<User> loadUsers() {
@@ -42,12 +62,14 @@ public class UserJsonManager {
     }
 
     // Guardar una lista de usuarios en el archivo JSON
-    private void saveUsersToFile(List<User> users) {
+    private boolean saveUsersToFile(List<User> users) {
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
             gson.toJson(users, writer);
+            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error al guardar los usuarios en el archivo. " + e.getMessage());
         }
+        return false;
     }
 
     // Buscar un usuario por su ID
@@ -81,10 +103,9 @@ public class UserJsonManager {
         saveUsersToFile(users);
     }
 
-    public boolean checkLogin(String janeSmith, String mypassword456) {
+    public boolean checkLogin(String username, String password) {
         List<User> users = loadUsers();
-        for (User user : users) {
-            if (user.getUsername().equals(janeSmith) && user.getPassword().equals(mypassword456)) {
+        for (User user : users) {            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 return true;
             }
         }
@@ -93,13 +114,28 @@ public class UserJsonManager {
 
     public String generateId() {
         List<User> users = loadUsers();
+
+        // Si la lista está vacía, el primer ID será "1"
+        if (users.isEmpty()) {
+            return "1";
+        }
+
+        // Encontrar el mayor ID existente
         int maxId = 0;
         for (User user : users) {
-            int id = Integer.parseInt(user.getId());
-            if (id > maxId) {
-                maxId = id;
+            try {
+                // Intentar convertir el ID a un número
+                int id = Integer.parseInt(user.getId());
+                if (id > maxId) {
+                    maxId = id;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Advertencia: ID no numérico encontrado: " + user.getId());
             }
         }
+
+        // Retornar el siguiente ID numérico
         return String.valueOf(maxId + 1);
     }
+
 }

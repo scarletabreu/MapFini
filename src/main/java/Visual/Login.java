@@ -1,6 +1,7 @@
 package Visual;
 
 import backend.Classes.User;
+import backend.Files.UserJsonManager;
 import backend.Mail.Welcome;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -28,17 +29,16 @@ import java.util.Objects;
 
 public class Login extends Application {
     private StackPane mainContainer;
+    private UserJsonManager userJson = new UserJsonManager();
 
     @Override
     public void start(Stage primaryStage) {
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm()));
 
-        // Crea el contenedor principal y establece el fondo de gradiente
         mainContainer = new StackPane();
         addGradientBackground(screenBounds);
 
-        // Carga el formulario de inicio de sesión al iniciar
         mainContainer.getChildren().add(createLoginContainer(screenBounds));
 
         Scene scene = new Scene(mainContainer);
@@ -48,7 +48,6 @@ public class Login extends Application {
         primaryStage.show();
     }
 
-    // Método para crear y agregar el fondo de gradiente al contenedor principal
     private void addGradientBackground(Rectangle2D screenBounds) {
         Rectangle gradientBackground = new Rectangle();
         gradientBackground.setWidth(screenBounds.getWidth());
@@ -66,7 +65,6 @@ public class Login extends Application {
     public VBox createLoginContainer(Rectangle2D screenBounds) {
         VBox container = getvBox(screenBounds);
 
-        // Logo section
         Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
         ImageView logoView = new ImageView(logo);
         logoView.setFitWidth(150);
@@ -118,16 +116,14 @@ public class Login extends Application {
             String username = usernameField.getText();
             String password = ((PasswordField) ((StackPane) passwordField).getChildren().get(1)).getText();
 
-           /* UserDB userDB = new UserDB();
-
-            if (userDB.checkLogin(username, password)) {
+            if (userJson.checkLogin(username, password)) {
                 System.out.println("Login exitoso.");
                 Stage dashboardStage = new Stage();
                 MainDashboard.showDashboard(dashboardStage);
                 ((Stage) container.getScene().getWindow()).close();
             } else {
                 System.out.println("Nombre de usuario o contraseña incorrectos.");
-            }*/
+            }
         });
 
         container.getChildren().addAll(
@@ -222,11 +218,10 @@ public class Login extends Application {
                 return;
             }
 
-           /* String userId = FirebaseService.generateId();
-            User newUser = new User(userId, username, password, email);
+            User newUser = new User(userJson.generateId(), username, password, email);
 
             // Guarda en Firestore
-            if (userDB.create(newUser)) {
+            if (userJson.saveUser(newUser)) {
                 System.out.println("Usuario registrado con éxito.");
 
                 String subject = "¡Bienvenido a NodeMap!";
@@ -239,7 +234,7 @@ public class Login extends Application {
                 ((Stage) signUpContainer.getScene().getWindow()).close();
             } else {
                 System.out.println("Error al registrar el usuario.");
-            }*/
+            }
         });
 
         // Agrega los elementos al contenedor de registro
