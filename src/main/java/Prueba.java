@@ -12,8 +12,8 @@ public class Prueba {
         // Crear un WorldMap
         ArrayList<Stop> stops = new ArrayList<>();
         ArrayList<Route> routes = new ArrayList<>();
-        stops.add(new Stop("hola", 0,0));
-        stops.add(new Stop("adios", 1,1));
+        stops.add(new Stop(0,0));
+        stops.add(new Stop( 1,1));
         routes.add(new Route(1, 2, 100, 60, 50, 1));
         WorldMap worldMap = new WorldMap(stops, routes);
 
@@ -34,7 +34,7 @@ public class Prueba {
         }
 
         // Actualizar un WorldMap
-        worldMap.createStop(new Stop("adios", 1,1));
+        worldMap.createStop(new Stop( 1,1));
         manager.updateWorldMap(worldMap);
 
         // Eliminar un WorldMap por ID

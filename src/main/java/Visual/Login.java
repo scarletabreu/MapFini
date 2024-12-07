@@ -22,6 +22,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -63,18 +64,7 @@ public class Login extends Application {
     }
 
     public VBox createLoginContainer(Rectangle2D screenBounds) {
-        VBox container = new VBox(30);
-        container.setMaxWidth(screenBounds.getWidth() * 0.35);
-        container.setAlignment(Pos.CENTER);
-        container.setPadding(new Insets(40));
-        container.setStyle(
-                "-fx-background-color: rgba(48, 40, 54, 0.9);" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 20, 0, 0, 10);" +
-                        "-fx-border-radius: 20;" +
-                        "-fx-border-color: rgba(48, 40, 54, 0.5);" +
-                        "-fx-border-width: 2;"
-        );
+        VBox container = getvBox(screenBounds);
 
         // Logo section
         Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
@@ -144,6 +134,22 @@ public class Login extends Application {
                 logoContainer, titleLabel, usernameField, passwordField, rememberForgotContainer, loginButton, signUpContainer
         );
 
+        return container;
+    }
+
+    private static @NotNull VBox getvBox(Rectangle2D screenBounds) {
+        VBox container = new VBox(30);
+        container.setMaxWidth(screenBounds.getWidth() * 0.35);
+        container.setAlignment(Pos.CENTER);
+        container.setPadding(new Insets(40));
+        container.setStyle(
+                "-fx-background-color: rgba(48, 40, 54, 0.9);" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 20, 0, 0, 10);" +
+                        "-fx-border-radius: 20;" +
+                        "-fx-border-color: rgba(48, 40, 54, 0.5);" +
+                        "-fx-border-width: 2;"
+        );
         return container;
     }
 
