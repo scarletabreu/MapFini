@@ -20,13 +20,14 @@ public class UserJsonManager {
     }
 
     // Guardar un usuario en el archivo JSON
-    public void saveUser(User user) {
+    public boolean saveUser(User user) {
         List<User> users = loadUsers();
         if (users == null) {
             users = new ArrayList<>();
         }
         users.add(user);
         saveUsersToFile(users);
+        return true;
     }
 
     // Cargar todos los usuarios desde el archivo JSON
@@ -78,5 +79,27 @@ public class UserJsonManager {
         List<User> users = loadUsers();
         users.removeIf(user -> user.getId().equals(id));
         saveUsersToFile(users);
+    }
+
+    public boolean checkLogin(String janeSmith, String mypassword456) {
+        List<User> users = loadUsers();
+        for (User user : users) {
+            if (user.getUsername().equals(janeSmith) && user.getPassword().equals(mypassword456)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String generateId() {
+        List<User> users = loadUsers();
+        int maxId = 0;
+        for (User user : users) {
+            int id = Integer.parseInt(user.getId());
+            if (id > maxId) {
+                maxId = id;
+            }
+        }
+        return String.valueOf(maxId + 1);
     }
 }
