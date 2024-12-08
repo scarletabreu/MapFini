@@ -37,7 +37,7 @@ public class Stop {
         return adjacencyList;
     }
 
-    public void addVertex(Stop vertex, int distance, int time, int price, int transports) {
+    public void addVertex(Stop vertex) {
         if (!adjacencyList.contains(vertex.id)) {
             adjacencyList.add(vertex.id);
             vertex.getAdjacencyList().add(this.id);
@@ -45,8 +45,18 @@ public class Stop {
     }
 
     public void removeVertex(Stop vertex) {
-        adjacencyList.remove(vertex.id);
-        vertex.adjacencyList.remove(this.id);
+        for(int i = 0; i < adjacencyList.size(); i++){
+            if(adjacencyList.get(i) == vertex.getId()){
+                adjacencyList.remove(i);
+                break;
+            }
+        }
+        for(int i = 0; i < vertex.adjacencyList.size(); i++){
+            if(vertex.adjacencyList.get(i) == id){
+                vertex.adjacencyList.remove(i);
+                break;
+            }
+        }
     }
 
     public void clearAdjacencyList() {

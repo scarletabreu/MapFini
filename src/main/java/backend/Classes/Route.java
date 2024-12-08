@@ -13,7 +13,7 @@ public class Route {
     private int transports;
     private Traffic traffic;
 
-    public Route(Integer start, Integer end, int distance, int time, int cost, int transports) {
+    public Route(Integer start, Integer end, int distance, int time, int cost, int transports, Traffic traffic) {
         this.id = String.valueOf(++counter);
         this.start = start;
         this.end = end;
@@ -21,7 +21,18 @@ public class Route {
         this.time = time;
         this.cost = cost;
         this.transports = transports;
-        this.traffic = null;
+        this.traffic = traffic;
+    }
+
+    public Route(Integer start, Integer end, int distance, int time, int cost, int transports, String id, Traffic traffic) {
+        this.id = id;
+        this.start = start;
+        this.end = end;
+        this.distance = distance;
+        this.time = time;
+        this.cost = cost;
+        this.transports = transports;
+        this.traffic = traffic;
     }
 
     public String getId() {
