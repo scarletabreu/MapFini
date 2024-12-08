@@ -1,19 +1,20 @@
 package backend.Controller;
 
 import backend.Classes.*;
+import backend.Enum.Algorithm;
 import backend.Enum.Priority;
 
 import java.util.*;
 
 public class WorldMap {
     private static int counter = 0;
-    private String id;
-    private final ArrayList<Stop> stops;
-    private final ArrayList<Route> routes;
+    private final String id;
+    private final List<Stop> stops;
+    private final List<Route> routes;
     private static WorldMap instance;
     private List<Stop> lastCalculatedPath;
 
-    public WorldMap(ArrayList<Stop> stops, ArrayList<Route> routes) {
+    public WorldMap(List<Stop> stops, List<Route> routes) {
         this.id = String.valueOf(++counter);
         this.stops = stops;
         this.routes = routes;
@@ -42,17 +43,19 @@ public class WorldMap {
         routes.add(route);
     }
 
-    public List<Route> getStopRoutes(int id){
-        ArrayList<Route> stopRoutes = new ArrayList<>();
-        for(Route r : routes){
-            if(r.getStart() == id) stopRoutes.add(r);
+    public List<Route> getStopRoutes(int stopId) {
+        List<Route> stopRoutes = new ArrayList<>();
+        for (Route r : routes) {
+            if (r.getStart() == stopId) stopRoutes.add(r);
         }
         return stopRoutes;
     }
 
-    public Route getRoute(int start, int end){
-        for(Route r : routes)  if(r.getStart() == start && r.getEnd() == end) return r;
-        return null;
+    public Route getRoute(int startId, int endId) {
+        return routes.stream()
+                .filter(r -> r.getStart() == startId && r.getEnd() == endId)
+                .findFirst()
+                .orElse(null);
     }
 
     public List<Stop> getStops() {
@@ -63,13 +66,20 @@ public class WorldMap {
         stops.add(stop);
     }
 
-    public Stop findStopById(int id) {
-        for (Stop stop : stops) {
-            if (stop.getId() == id) {
-                return stop;
-            }
+    public Stop findStopById(int stopId) {
+        return stops.stream()
+                .filter(stop -> stop.getId() == stopId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // General method for pathfinding algorithms to update lastCalculatedPath
+    private void updatePath(List<Stop> path, double distance) {
+        lastCalculatedPath = path.isEmpty() ? Collections.emptyList() : path;
+        if (!path.isEmpty()) {
+            System.out.println("Distancia: " + distance);
+            System.out.println("Paradas: " + path.stream().map(Stop::getId).toList());
         }
-        return null;
     }
 
     public void dijkstra(Stop start, Stop end, Priority priority) {
@@ -80,14 +90,13 @@ public class WorldMap {
         Set<Stop> visited = new HashSet<>();
         PriorityQueue<Stop> queue = new PriorityQueue<>(Comparator.comparingInt(distances::get));
 
-        for (Stop stop : stops) distances.put(stop, Integer.MAX_VALUE);
+        stops.forEach(stop -> distances.put(stop, Integer.MAX_VALUE));
         distances.put(start, 0);
         queue.add(start);
 
         while (!queue.isEmpty()) {
             Stop current = queue.poll();
             if (visited.contains(current)) continue;
-
             visited.add(current);
 
             for (Integer i : current.getAdjacencyList()) {
@@ -105,7 +114,7 @@ public class WorldMap {
         }
 
         lastCalculatedPath = reconstructPath(predecessors, start, end);
-        printPath(start, end, distances.get(end), lastCalculatedPath);
+        updatePath(lastCalculatedPath, distances.get(end));
     }
 
     public void BellmanFord(Stop start, Stop end, Priority priority) {
@@ -116,10 +125,9 @@ public class WorldMap {
 
         Map<Stop, Integer> distances = new HashMap<>();
         Map<Stop, Stop> predecessors = new HashMap<>();
-        for (Stop stop : stops) distances.put(stop, Integer.MAX_VALUE);
+        stops.forEach(stop -> distances.put(stop, Integer.MAX_VALUE));
         distances.put(start, 0);
 
-        // Relax edges |V| - 1 times
         for (int i = 1; i < stops.size(); i++) {
             boolean updated = false;
             for (Stop current : stops) {
@@ -139,30 +147,13 @@ public class WorldMap {
             if (!updated) break;
         }
 
-        // Check for negative-weight cycles
-        for (Stop current : stops) {
-            for (Integer i : current.getAdjacencyList()) {
-                Stop neighbor = findStopById(i);
-                Route route = getRoute(current.getId(), neighbor.getId());
-                if (route == null || calculatePriority(distances.get(current), route, priority) == -1) continue;
-
-                int newDist = calculatePriority(distances.get(current), route, priority);
-                if (newDist < distances.get(neighbor)) {
-                    System.out.println("El grafo contiene un ciclo de peso negativo.");
-                    return;
-                }
-            }
-        }
-
-        // Reconstruct and print the best path from start to end
         lastCalculatedPath = reconstructPath(predecessors, start, end);
         if (lastCalculatedPath.isEmpty()) {
             System.out.println("No existe un camino entre " + start.getId() + " y " + end.getId() + ".");
         } else {
-            printPath(start, end, distances.get(end), lastCalculatedPath);
+            updatePath(lastCalculatedPath, distances.get(end));
         }
     }
-
 
     public void FloydWarshall(Stop start, Stop end, Priority priority) {
         int n = stops.size();
@@ -174,7 +165,7 @@ public class WorldMap {
             for (int j = 0; j < n; j++) {
                 Stop stopI = stops.get(i);
                 Stop stopJ = stops.get(j);
-                Route route = getRoute(stopI.getId(),stopJ.getId());
+                Route route = getRoute(stopI.getId(), stopJ.getId());
 
                 if (i == j) {
                     dist[i][j] = 0;
@@ -205,55 +196,9 @@ public class WorldMap {
             int endIndex = stops.indexOf(end);
 
             if (dist[startIndex][endIndex] != NO_PATH) {
-                printPath(start, end, dist[startIndex][endIndex], reconstructFloydPath(startIndex, endIndex, next));
+                updatePath(reconstructFloydPath(startIndex, endIndex, next), dist[startIndex][endIndex]);
             }
         }
-    }
-
-    public void Prim() {
-        Set<Route> mstEdges = new HashSet<>();
-        Set<Stop> mstVertices = new HashSet<>();
-        PriorityQueue<Route> edgeQueue = new PriorityQueue<>(Comparator.comparingInt(Route::getCost));
-
-        Stop start = stops.getFirst();
-        mstVertices.add(start);
-        edgeQueue.addAll(getStopRoutes(start.getId()));
-
-        while (mstVertices.size() < stops.size() && !edgeQueue.isEmpty()) {
-            Route minEdge = edgeQueue.poll();
-            Stop nextVertex = findStopById(minEdge.getEnd());
-
-            if (mstVertices.contains(nextVertex)) continue;
-
-            mstVertices.add(nextVertex);
-            mstEdges.add(minEdge);
-
-            for (Route edge : getStopRoutes(nextVertex.getId())) {
-                if (!mstVertices.contains(findStopById(edge.getEnd()))) edgeQueue.add(edge);
-            }
-
-            System.out.println("Agregando arista: " + minEdge.getStart() + " -> " + minEdge.getEnd());
-        }
-
-        mstEdges.forEach(edge -> System.out.println(edge.getStart() + " -> " + edge.getEnd()));
-    }
-
-    public List<Route> Kruskal() {
-        List<Route> result = new ArrayList<>();
-        List<Route> edges = new ArrayList<>();
-        stops.forEach(stop -> edges.addAll(getStopRoutes(stop.getId())));
-        edges.sort(Comparator.comparingInt(Route::getDistance));
-
-        UnionFind uf = new UnionFind();
-        for (Route edge : edges) {
-            int startId = edge.getStart();
-            int endId = edge.getEnd();
-            if (!uf.connected(startId, endId)) {
-                uf.union(startId, endId);
-                result.add(edge);
-            }
-        }
-        return result;
     }
 
     private List<Stop> reconstructPath(Map<Stop, Stop> predecessors, Stop start, Stop end) {
@@ -281,13 +226,12 @@ public class WorldMap {
 
     private int calculatePriority(int currentDistance, Route route, Priority priority) {
         if (route == null) return -1;
+        if (priority == null) return currentDistance + route.getDistance() + route.getTime() + route.getTransports() + route.getCost();
         return switch (priority) {
             case DISTANCE -> currentDistance + route.getDistance();
             case TIME -> currentDistance + route.getTime();
             case COST -> currentDistance + route.getCost();
             case TRANSPORTS -> currentDistance + route.getTransports();
-            default ->
-                    currentDistance + route.getDistance() + route.getTime() + route.getTransports() + route.getCost();
         };
     }
 
@@ -300,4 +244,42 @@ public class WorldMap {
             System.out.println("Paradas: " + path.stream().map(Stop::getId).toList());
         }
     }
+
+    public void removeStop(Stop selectedStartStop) {
+        if (selectedStartStop != null) {
+            routes.removeIf(route -> route.getEnd() == selectedStartStop.getId() || route.getStart() == selectedStartStop.getId());
+            for (Stop s : stops) {
+                s.getAdjacencyList().removeIf(adj -> adj == selectedStartStop.getId());
+            }
+            stops.remove(selectedStartStop);
+        }
+    }
+
+    public List<Stop> findBestPath(Stop start, Stop end, Priority priority, Algorithm algorithm) {
+        if (algorithm == null) return null;
+        switch (algorithm) {
+            case DIJKSTRA -> dijkstra(start, end, priority);
+            case FLOYD_WARSHALL -> FloydWarshall(start, end, priority);
+            case BELLMAN_FORD -> BellmanFord(start, end, priority);
+        }
+        return lastCalculatedPath;
+    }
+
+    public void deleteRoute(Route route){
+        for(Stop stop : stops){
+            if(stop.getId() == route.getStart()) stop.removeVertex(findStopById(route.getEnd()));
+        }
+        routes.remove(route);
+    }
+
+    public void updateRoute(Route route){
+        for(Route r : routes){
+            if(Objects.equals(r.getId(), route.getId())){
+                routes.remove(r);
+                routes.add(route);
+                return;
+            }
+        }
+    }
+
 }

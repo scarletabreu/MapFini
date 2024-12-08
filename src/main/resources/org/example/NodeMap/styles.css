@@ -1,0 +1,143 @@
+/* General TabPane styling */
+
+/* Styling for the footer button area */
+
+.dialog-pane .button-bar {
+    -fx-background-color: #302836; /* Same background as the rest of the dialog */
+    -fx-border-width: 2px 0 0 0;    /* Apply a 2px border on top only */
+    -fx-border-color: #AA7CFB;      /* Set border color */
+    -fx-border-style: solid;        /* Set the border style */ /* Remove borders on all other sides */
+}
+
+/* Button styling */
+.dialog-pane .button-bar .button {
+    -fx-background-color: #302836; /* Same background color */
+    -fx-border-color: #AA7CFB;     /* Border color */
+    -fx-border-width: 2px;         /* Border width */
+    -fx-border-radius: 5px;        /* Rounded corners for the buttons */
+    -fx-text-fill: #FFFFFF;        /* Text color */
+    -fx-padding: 5px 15px;         /* Padding around the text */
+}
+
+/* Optional: Change button hover effect */
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: #AA7CFB; /* Change background color on hover */
+    -fx-text-fill: #FFFFFF;         /* Ensure text stays white on hover */
+}
+
+.tab-pane {
+    -fx-background-color: #302836 !important; /* Main background color */
+    -fx-border-color: #AA7CFB !important;     /* Border color around TabPane */
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;       /* Rounded corners */
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: #302836 !important; /* Match main background */
+    -fx-background-radius: 10px 10px 0 0 !important; /* Rounded top corners */
+    -fx-border-radius: 10px 10px 0 0; /* Match header area with TabPane */
+}
+
+/* Styling for individual tabs */
+.tab-pane .tab {
+    -fx-background-color: #302836; /* Background of unselected tabs */
+    -fx-text-base-color: #FFFFFF;  /* Text color of unselected tabs */
+    -fx-padding: 5px;              /* Padding around tab text */
+    -fx-background-radius: 10px 10px 0 0; /* Rounded corners on tabs */
+}
+
+/* Active (selected) tab styling */
+.tab-pane .tab:selected {
+    -fx-background-color: #AA7CFB;  /* Background color of active tab */
+    -fx-text-fill: #FEFEFE;  /* Text color of active tab */
+    -fx-border-width: 0;  /* Remove border */
+    -fx-background-radius: 10px 10px 0 0;  /* Rounded corners */
+    -fx-focus-color: transparent;  /* Remove the focus outline (blue rectangle) */
+    -fx-faint-focus-color: transparent;  /* Remove the faint focus outline (blue rectangle) */
+}
+
+.tab-pane .tab:selected:hover {
+    -fx-background-color: #AA7CFB;  /* Keep the background color on hover */
+    -fx-text-fill: #FEFEFE;  /* Keep the text color on hover */
+    -fx-focus-color: transparent;  /* Ensure no focus outline when hovered */
+    -fx-faint-focus-color: transparent;  /* Ensure no faint focus outline on hover */
+}
+
+/* TabPane content area styling (below tabs) */
+.tab-pane .tab-content-area {
+    -fx-background-color: #302836; /* Background color of the tab content area */
+    -fx-background-radius: 0 0 10px 10px; /* Rounded bottom corners */
+}
+
+/* ScrollPane styling */
+.scroll-pane {
+    -fx-border-width: 0px;
+    -fx-background-color: #302836; /* Background color inside ScrollPane */
+    -fx-padding: 5px;
+}
+
+/* ScrollPane viewport styling */
+.scroll-pane .viewport {
+    -fx-background-color: #302836; /* Match ScrollPane background color */
+    -fx-border-width: 0px;
+}
+
+/* Content inside ScrollPane */
+.scroll-pane .content {
+    -fx-background-color: #302836; /* Content background color */
+    -fx-padding: 10px;
+    -fx-border-radius: 0px;
+}
+
+/* VBox inside ScrollPane */
+.scroll-pane .content .vbox {
+    -fx-background-color: #302836; /* VBox background */
+    -fx-border-width: 0px;
+    -fx-padding: 5px;
+}
+
+/* Button styling */
+.button {
+    -fx-background-color: #302836; /* Button background color */
+    -fx-border-color: #AA7CFB;     /* Button border color */
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;        /* Rounded button corners */
+    -fx-text-fill: #FFFFFF;        /* Button text color */
+    -fx-alignment: center;
+}
+
+.combo-box, .text-field, .combo-box .text, .combo-box.list-cell{
+    -fx-background-color: #302836; /* Button background color */
+    -fx-border-color: #AA7CFB;     /* Button border color */
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;        /* Rounded button corners */
+    -fx-text-fill: #FFFFFF;        /* Button text color */
+    -fx-alignment: center;
+}
+
+/* Change the background and text color of the selected item in the drop-down list */
+.combo-box .list-cell{
+    -fx-background-color: #302836; /* Button background color */
+    -fx-text-fill: #FEFEFE;  /* Text color of active tab */
+    -fx-border-width: 0;  /* Remove border */
+    -fx-focus-color: transparent;  /* Remove the focus outline (blue rectangle) */
+    -fx-faint-focus-color: transparent;  /* Remove the faint focus outline (blue rectangle) */
+}
+
+/* Change the hover effect for the items in the drop-down */
+.combo-box .list-cell:hover {
+    -fx-background-color: #AA7CFB;  /* Background color of active tab */
+    -fx-text-fill: #FEFEFE;  /* Text color of active tab */
+    -fx-border-width: 0;  /* Remove border */
+    -fx-focus-color: transparent;  /* Remove the focus outline (blue rectangle) */
+    -fx-faint-focus-color: transparent;  /* Remove the faint focus outline (blue rectangle) */
+}
+
+.text-field{
+    -fx-background-color: #302836; /* Button background color */
+    -fx-border-color: #AA7CFB;     /* Button border color */
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;        /* Rounded button corners */
+    -fx-text-fill: #FFFFFF;        /* Button text color */
+    -fx-alignment: center;
+}

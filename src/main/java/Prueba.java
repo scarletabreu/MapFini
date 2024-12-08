@@ -1,6 +1,7 @@
 import backend.Classes.Route;
 import backend.Classes.Stop;
 import backend.Controller.WorldMap;
+import backend.Enum.Traffic;
 import backend.Files.WorldMapJsonManager;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class Prueba {
         ArrayList<Route> routes = new ArrayList<>();
         stops.add(new Stop(0,0));
         stops.add(new Stop( 1,1));
-        routes.add(new Route(1, 2, 100, 60, 50, 1));
+        routes.add(new Route(1, 2, 100, 60, 50, 1, Traffic.HIGH));
         WorldMap worldMap = new WorldMap(stops, routes);
 
         // Guardar el WorldMap
