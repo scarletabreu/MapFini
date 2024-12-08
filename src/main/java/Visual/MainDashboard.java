@@ -112,6 +112,7 @@ public class MainDashboard extends Application {
         openMapBtn.setOnAction(e -> {
             System.out.println("Abrir el mapa");
             // Cargar los mapas del usuario
+            OpenMap.showDashboard(primaryStage);
         });
         Button createMapBtn = createPurpleButton("Create Map");
 
