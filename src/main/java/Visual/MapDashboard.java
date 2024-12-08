@@ -49,7 +49,7 @@ public class MapDashboard {
     private Button deleteStopButton;
 
     private Priority selectedPriority;
-    private Algorithm selectedAlgorithm;
+    private Algorithm selectedAlgorithm = Algorithm.DIJKSTRA;
     private Circle hoverCircle;
     private final Map<Stop, Circle> stopCircles;
     private boolean isAddingStop = false;
