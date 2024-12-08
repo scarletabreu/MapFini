@@ -32,6 +32,11 @@ public class MainDashboard extends Application {
         }
     }
 
+    public static void showMainDashboard(Stage window) {
+        MainDashboard dashboard = new MainDashboard();
+        dashboard.start(window);
+    }
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -111,7 +116,6 @@ public class MainDashboard extends Application {
 
         openMapBtn.setOnAction(e -> {
             System.out.println("Abrir el mapa");
-            // Cargar los mapas del usuario
             OpenMap.showDashboard(primaryStage);
         });
         Button createMapBtn = createPurpleButton("Create Map");

@@ -4,6 +4,9 @@ import backend.Classes.*;
 import backend.Enum.Priority;
 
 import java.util.*;
+import java.util.logging.Level;
+
+import static backend.Files.WorldMapJsonManager.LOGGER;
 
 public class WorldMap {
     private static int counter = 0;
@@ -39,8 +42,13 @@ public class WorldMap {
     }
 
     public void createRoute(Route route) {
-        routes.add(route);
+        if (route != null) {
+            routes.add(route);
+        } else {
+            LOGGER.log(Level.WARNING, "Intento de agregar una ruta nula.");
+        }
     }
+
 
     public List<Route> getStopRoutes(int id){
         ArrayList<Route> stopRoutes = new ArrayList<>();
@@ -51,9 +59,18 @@ public class WorldMap {
     }
 
     public Route getRoute(int start, int end){
-        for(Route r : routes)  if(r.getStart() == start && r.getEnd() == end) return r;
+        for(Route r : routes) {
+            if (r == null) {
+                LOGGER.log(Level.WARNING, "Ruta nula encontrada");
+                continue;  // O puedes devolver un valor nulo si prefieres
+            }
+            if (r.getStart() == start && r.getEnd() == end) {
+                return r;
+            }
+        }
         return null;
     }
+
 
     public List<Stop> getStops() {
         return stops;
