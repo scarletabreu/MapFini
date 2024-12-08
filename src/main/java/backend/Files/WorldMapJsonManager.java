@@ -4,14 +4,15 @@ import backend.Controller.WorldMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WorldMapJsonManager {
     private static final String FILE_PATH = "src/main/java/Files/maps.json";
+    private static final Logger LOGGER = Logger.getLogger(WorldMapJsonManager.class.getName());
     private final Gson gson;
 
     public WorldMapJsonManager() {
@@ -19,62 +20,83 @@ public class WorldMapJsonManager {
     }
 
     // Guardar un WorldMap en el archivo JSON
-    public void saveWorldMap(WorldMap worldMap) {
-        ArrayList<WorldMap> worldMaps = loadWorldMaps();
-        if (worldMaps == null) {
-            worldMaps = new ArrayList<>();
+    public boolean saveWorldMap(WorldMap worldMap) {
+        if (worldMap == null) {
+            LOGGER.log(Level.WARNING, "El WorldMap no puede ser nulo.");
+            return false;
         }
+
+        List<WorldMap> worldMaps = loadWorldMaps();
         worldMaps.add(worldMap);
-        saveWorldMapsToFile(worldMaps);
+        return saveWorldMapsToFile(worldMaps);
     }
 
     // Cargar todos los WorldMaps desde el archivo JSON
-    public ArrayList<WorldMap> loadWorldMaps() {
-        try (FileReader reader = new FileReader(FILE_PATH)) {
-            Type listType = new TypeToken<ArrayList<WorldMap>>() {}.getType();
-            return gson.fromJson(reader, listType);
+    public List<WorldMap> loadWorldMaps() {
+        File file = new File(FILE_PATH);
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    LOGGER.log(Level.INFO, "Archivo de mapas creado.");
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "No se pudo crear el archivo de mapas.", e);
+            }
+            return new ArrayList<>();
+        }
+
+        try (FileReader reader = new FileReader(file)) {
+            Type listType = new TypeToken<List<WorldMap>>() {}.getType();
+            List<WorldMap> worldMaps = gson.fromJson(reader, listType);
+            return worldMaps != null ? worldMaps : new ArrayList<>();
         } catch (IOException e) {
-            return new ArrayList<>(); // Si no existe el archivo, devuelve una lista vacía
+            LOGGER.log(Level.SEVERE, "Error al leer el archivo de mapas.", e);
+            return new ArrayList<>();
         }
     }
 
     // Guardar una lista de WorldMaps en el archivo JSON
-    private void saveWorldMapsToFile(ArrayList<WorldMap> worldMaps) {
+    private boolean saveWorldMapsToFile(List<WorldMap> worldMaps) {
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
             gson.toJson(worldMaps, writer);
+            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error al guardar los mapas en el archivo.", e);
+            return false;
         }
     }
 
     // Buscar un WorldMap por ID
-    public WorldMap findWorldMapById(String id) {
-        ArrayList<WorldMap> worldMaps = loadWorldMaps();
-        for (WorldMap worldMap : worldMaps) {
-            if (worldMap.getId().equals(id)) {
-                return worldMap;
-            }
-        }
-        return null; // Si no se encuentra el WorldMap
+    public Optional<WorldMap> findWorldMapById(String id) {
+        return loadWorldMaps().stream()
+                .filter(worldMap -> worldMap.getId().equals(id))
+                .findFirst();
     }
 
     // Actualizar un WorldMap existente
-    public void updateWorldMap(WorldMap updatedWorldMap) {
-        ArrayList<WorldMap> worldMaps = loadWorldMaps();
-        for (int i = 0; i < worldMaps.size(); i++) {
-            if (worldMaps.get(i).getId().equals(updatedWorldMap.getId())) {
-                worldMaps.set(i, updatedWorldMap);
-                saveWorldMapsToFile(worldMaps);
-                return;
-            }
+    public boolean updateWorldMap(WorldMap updatedWorldMap) {
+        List<WorldMap> worldMaps = loadWorldMaps();
+        Optional<WorldMap> existingWorldMap = findWorldMapById(updatedWorldMap.getId());
+
+        if (existingWorldMap.isPresent()) {
+            worldMaps = new ArrayList<>(worldMaps); // Para evitar ConcurrentModificationException
+            worldMaps.replaceAll(worldMap -> worldMap.getId().equals(updatedWorldMap.getId()) ? updatedWorldMap : worldMap);
+            return saveWorldMapsToFile(worldMaps);
+        } else {
+            LOGGER.log(Level.WARNING, "WorldMap con ID {0} no encontrado para actualizar.", updatedWorldMap.getId());
+            return false;
         }
-        System.out.println("WorldMap no encontrado para actualizar.");
     }
 
     // Eliminar un WorldMap por ID
-    public void deleteWorldMapById(String id) {
-        ArrayList<WorldMap> worldMaps = loadWorldMaps();
-        worldMaps.removeIf(worldMap -> worldMap.getId().equals(id));
-        saveWorldMapsToFile(worldMaps);
+    public boolean deleteWorldMapById(String id) {
+        List<WorldMap> worldMaps = loadWorldMaps();
+        boolean removed = worldMaps.removeIf(worldMap -> worldMap.getId().equals(id));
+        if (removed) {
+            return saveWorldMapsToFile(worldMaps);
+        } else {
+            LOGGER.log(Level.WARNING, "WorldMap con ID {0} no encontrado para eliminar.", id);
+            return false;
+        }
     }
 }

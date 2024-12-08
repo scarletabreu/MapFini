@@ -211,7 +211,12 @@ public class Login extends Application {
         signUpButton.setOnAction(e -> {
             String email = emailField.getText();
             String username = usernameField.getText();
-            String password = ((PasswordField) ((StackPane) passwordField).getChildren().get(1)).getText();
+            String password = "";
+
+            if (passwordField.getChildren().get(1) instanceof PasswordField) {
+                 password = ((PasswordField) passwordField.getChildren().get(1)).getText();
+                System.out.println("Password: " + password);
+            }
 
             if (email.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 System.out.println("Todos los campos son obligatorios.");
@@ -220,13 +225,12 @@ public class Login extends Application {
 
             User newUser = new User(userJson.generateId(), username, password, email);
 
-            // Guarda en Firestore
             if (userJson.saveUser(newUser)) {
                 System.out.println("Usuario registrado con éxito.");
 
                 String subject = "¡Bienvenido a NodeMap!";
                 Welcome.sendEmail(email, subject, username, password);
-                System.out.println("Correo enviado correctamente.");
+                showLoginForm(screenBounds);
 
                 Stage dashboardStage = new Stage();
                 MainDashboard.showDashboard(dashboardStage);
@@ -235,6 +239,7 @@ public class Login extends Application {
             } else {
                 System.out.println("Error al registrar el usuario.");
             }
+
         });
 
         // Agrega los elementos al contenedor de registro

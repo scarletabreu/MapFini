@@ -3,6 +3,7 @@ package Visual;
 import backend.Classes.Stop;
 import backend.Controller.WorldMap;
 import backend.Enum.Priority;
+import backend.Files.UserJsonManager;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +30,7 @@ public class MapDashboard {
     @FXML private Button addStopButton;
     @FXML private Button enrouteButton;
     @FXML private Button findPathButton;
+    @FXML private Button exitButton;
     @FXML private ComboBox<String> priorityComboBox;
 
     private Priority selectedPriority;
@@ -43,6 +45,9 @@ public class MapDashboard {
     private boolean isPathFinding = false;
     private Stop selectedStartStop;
     private Stop pathStart;
+
+    private UserJsonManager userJson = new UserJsonManager();
+
 
     @FXML
     public void initialize() {
@@ -78,10 +83,49 @@ public class MapDashboard {
         styleButton(addStopButton);
         styleButton(findPathButton);
         styleButton(enrouteButton);
+        styleButton(exitButton);
 
         addStopButton.setOnAction(e -> handleAddStop());
         findPathButton.setOnAction(e -> handleFindPath());
         enrouteButton.setOnAction(e -> handleEnroute());
+        exitButton.setOnAction(e -> handleExit());
+    }
+
+    private void handleExit() {
+        // Crear un cuadro de confirmación para preguntar si desea guardar
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmar salida");
+        alert.setHeaderText("¿Deseas guardar el mapa antes de salir?");
+        alert.setContentText("Si no guardas, perderás los cambios.");
+
+        // Crear los botones de la alerta (Sí, No, Cancelar)
+        ButtonType buttonTypeSave = new ButtonType("Guardar");
+        ButtonType buttonTypeNoSave = new ButtonType("No guardar");
+        ButtonType buttonTypeCancel = new ButtonType("Cancelar");
+
+        alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeNoSave, buttonTypeCancel);
+
+        // Mostrar la alerta y capturar la respuesta del usuario
+        alert.showAndWait().ifPresent(response -> {
+            if (response == buttonTypeSave) {
+                saveMap();
+                closeStage();
+            } else if (response == buttonTypeNoSave) {
+                closeStage();
+            } // Si el usuario selecciona Cancelar, no hace nada y permanece en la ventana.
+        });
+    }
+
+    private void saveMap() {
+        // Aquí debes agregar la lógica para guardar el mapa
+        System.out.println("Guardando el mapa...");
+        userJson.saveMap(worldMap);
+    }
+
+    private void closeStage() {
+        // Cerrar la ventana
+        Stage stage = (Stage) exitButton.getScene().getWindow();
+        stage.close();
     }
 
     private void configureMapPane() {

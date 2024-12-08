@@ -1,0 +1,41 @@
+{
+  "id": "1",
+  "stops": [
+    {
+      "id": 1,
+      "adjacencyList": [
+        2,
+        3
+      ],
+      "location": {
+        "x": 329.6,
+        "y": 261.6
+      }
+    },
+    {
+      "id": 2,
+      "adjacencyList": [
+        1,
+        3
+      ],
+      "location": {
+        "x": 482.4,
+        "y": 226.4
+      }
+    },
+    {
+      "id": 3,
+      "adjacencyList": [
+        1,
+        2
+      ],
+      "location": {
+        "x": 363.20000000000005,
+        "y": 128.0
+      }
+    }
+  ],
+  "routes": [
+    null
+  ]
+}
