@@ -1,9 +1,11 @@
 package backend.Files;
 
+import Visual.Classes.Point2DAdapter;
 import backend.Controller.WorldMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import javafx.geometry.Point2D;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -12,11 +14,14 @@ import java.util.logging.Logger;
 
 public class WorldMapJsonManager {
     private static final String FILE_PATH = "src/main/java/Files/maps.json";
-    private static final Logger LOGGER = Logger.getLogger(WorldMapJsonManager.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(WorldMapJsonManager.class.getName());
     private final Gson gson;
 
     public WorldMapJsonManager() {
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(Point2D.class, new Point2DAdapter())
+                .setPrettyPrinting()
+                .create();
     }
 
     // Guardar un WorldMap en el archivo JSON

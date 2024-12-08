@@ -117,13 +117,13 @@ public class MapDashboard {
     }
 
     private void saveMap() {
-        // Aquí debes agregar la lógica para guardar el mapa
         System.out.println("Guardando el mapa...");
         userJson.saveMap(worldMap);
     }
 
     private void closeStage() {
-        // Cerrar la ventana
+        MainDashboard.showMainDashboard((Stage) exitButton.getScene().getWindow());
+
         Stage stage = (Stage) exitButton.getScene().getWindow();
         stage.close();
     }
