@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private final String id;
+    private  String id;
     private String username;
     private String password;
     private String email;
@@ -49,6 +49,19 @@ public class User {
             this.maps = new ArrayList<>();  // Asegura que la lista no sea nula
         }
         this.maps.add(mapId);  // Agrega el ID del mapa a la lista
+    }
+
+    public void removeMap(String mapId) {
+        if (this.maps != null) {
+            this.maps.remove(mapId);  // Elimina el ID del mapa de la lista
+        }
+    }
+
+    public void setId(String id) {
+        // No se permite cambiar el ID
+        if (this.id.isEmpty()) {
+            this.id = id;
+        }
     }
 
     public String getEmail() {

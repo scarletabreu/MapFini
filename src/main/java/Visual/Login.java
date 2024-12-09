@@ -59,7 +59,7 @@ public class Login extends Application {
                 new Stop(0.875, Color.web("#AA7CFB"))
         ));
 
-        mainContainer.getChildren().addFirst(gradientBackground); // Añadir al fondo
+        mainContainer.getChildren().addFirst(gradientBackground);
     }
 
     public VBox createLoginContainer(Rectangle2D screenBounds) {
@@ -77,7 +77,7 @@ public class Login extends Application {
         logoContainer.getChildren().addAll(logoView);
 
         Label titleLabel = new Label("NodeMap");
-        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 40)); //Cambiar a Spicy Rice
+        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 40));
         titleLabel.setStyle("-fx-text-fill: #FFFFFF;");
 
         TextField usernameField = createField("Username");
@@ -96,7 +96,6 @@ public class Login extends Application {
         Hyperlink signUpLink = new Hyperlink("Sign up");
         signUpLink.setOnAction(_ -> showSignUpForm(screenBounds));
 
-        // HBox para alinear los elementos horizontalmente
         HBox signUpContainer = new HBox(10);
         signUpContainer.setAlignment(Pos.CENTER);
         signUpContainer.getChildren().addAll(questionLabel, signUpLink);
@@ -123,6 +122,13 @@ public class Login extends Application {
                 ((Stage) container.getScene().getWindow()).close();
             } else {
                 System.out.println("Nombre de usuario o contraseña incorrectos.");
+
+                // Mostrar mensaje de error
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Login failed");
+                alert.setContentText("Invalid username or password.");
+                alert.showAndWait();
             }
         });
 
@@ -163,7 +169,6 @@ public class Login extends Application {
                         "-fx-border-width: 2;"
         );
 
-        // Logo section
         Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
         ImageView logoView = new ImageView(logo);
         logoView.setFitWidth(150);
@@ -176,12 +181,10 @@ public class Login extends Application {
         logoContainer.setPadding(new Insets(0, 0, 20, 0));
         logoContainer.getChildren().addAll(logoView);
 
-        // Título
         Label titleLabel = new Label("NodeMap");
         titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 40));
         titleLabel.setStyle("-fx-text-fill: #FFFFFF;");
 
-        // Campos del formulario de registro
         TextField emailField = createField("Email");
         TextField usernameField = createField("Username");
         StackPane passwordField = createPasswordField(); // Cambia a PasswordField
@@ -192,7 +195,6 @@ public class Login extends Application {
         Hyperlink loginLink = new Hyperlink("Login");
         loginLink.setOnAction(_ -> showLoginForm(screenBounds));
 
-        // HBox para alinear los elementos horizontalmente
         HBox loginContainer = new HBox(10);
         loginContainer.setAlignment(Pos.CENTER);
         loginContainer.getChildren().addAll(questionLabel, loginLink);
@@ -220,6 +222,14 @@ public class Login extends Application {
 
             if (email.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 System.out.println("Todos los campos son obligatorios.");
+
+                // Mostrar mensaje de error
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Sign up failed");
+                alert.setContentText("All fields are required.");
+                alert.showAndWait();
+
                 return;
             }
 
@@ -238,6 +248,13 @@ public class Login extends Application {
                 ((Stage) signUpContainer.getScene().getWindow()).close();
             } else {
                 System.out.println("Error al registrar el usuario.");
+
+                // Mostrar mensaje de error
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Sign up failed");
+                alert.setContentText("An error occurred while registering the user.");
+                alert.showAndWait();
             }
 
         });
@@ -277,7 +294,6 @@ public class Login extends Application {
     }
 
     private StackPane createPasswordField() {
-        // Crea el campo de contraseña
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Password");
         passwordField.setPrefHeight(50);
@@ -322,8 +338,8 @@ public class Login extends Application {
         // Contenedor que combina el PasswordField/TextField y el botón de alternar
         StackPane container = new StackPane();
         container.getChildren().addAll(textField, passwordField, buttonContainer);
-        StackPane.setAlignment(buttonContainer, Pos.CENTER_RIGHT); // Alinea el botón a la derecha
-        StackPane.setMargin(buttonContainer, new Insets(0, 10, 0, 0)); // Margen derecho para el botón
+        StackPane.setAlignment(buttonContainer, Pos.CENTER_RIGHT);
+        StackPane.setMargin(buttonContainer, new Insets(0, 10, 0, 0));
 
         return container;
     }

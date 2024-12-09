@@ -35,5 +35,102 @@
         "transports": 2
       }
     ]
+  },
+  {
+    "id": "2",
+    "stops": [
+      {
+        "id": 1,
+        "adjacencyList": [
+          3,
+          2
+        ],
+        "location": {
+          "x": 220.0,
+          "y": 235.99999999999997
+        }
+      },
+      {
+        "id": 2,
+        "adjacencyList": [
+          3,
+          1
+        ],
+        "location": {
+          "x": 424.79999999999995,
+          "y": 223.99999999999997
+        }
+      },
+      {
+        "id": 3,
+        "adjacencyList": [
+          1,
+          2
+        ],
+        "location": {
+          "x": 358.4,
+          "y": 366.40000000000003
+        }
+      }
+    ],
+    "routes": [
+      {
+        "counter": 1,
+        "id": "1",
+        "start": 1,
+        "end": 3,
+        "distance": 10,
+        "time": 20,
+        "cost": 20,
+        "transports": 2,
+        "traffic": "HIGH"
+      },
+      {
+        "counter": 1,
+        "id": "1",
+        "start": 2,
+        "end": 3,
+        "distance": 10,
+        "time": 10,
+        "cost": 10,
+        "transports": 1,
+        "traffic": "LOW"
+      },
+      {
+        "counter": 1,
+        "id": "1",
+        "start": 1,
+        "end": 2,
+        "distance": 30,
+        "time": 50,
+        "cost": 10,
+        "transports": 2,
+        "traffic": "HIGH"
+      }
+    ],
+    "lastCalculatedPath": [
+      {
+        "id": 1,
+        "adjacencyList": [
+          3,
+          2
+        ],
+        "location": {
+          "x": 220.0,
+          "y": 235.99999999999997
+        }
+      },
+      {
+        "id": 3,
+        "adjacencyList": [
+          1,
+          2
+        ],
+        "location": {
+          "x": 358.4,
+          "y": 366.40000000000003
+        }
+      }
+    ]
   }
 ]

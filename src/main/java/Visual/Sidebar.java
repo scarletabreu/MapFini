@@ -72,7 +72,7 @@ public class Sidebar extends VBox {
     }
 
     public void slideIn() {
-        this.setTranslateX(-250); // Usar el mismo valor que setPrefWidth
+        this.setTranslateX(-250);
         TranslateTransition slideIn = new TranslateTransition(Duration.seconds(0.3), this);
         slideIn.setToX(0);
         slideIn.play();
