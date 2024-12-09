@@ -60,7 +60,7 @@ public class MapDashboard {
     private boolean isRouting = false;
     private boolean isDeleting = false;
     private Stop selectedStartStop = null;
-    private final WorldMap worldMap;
+    private WorldMap worldMap;
     private boolean isPathFinding = false;
     private Stop pathStart = null;
     private final Map<Pair<Stop, Stop>, Line> routeLines;
@@ -94,29 +94,129 @@ public class MapDashboard {
         }
     }
 
+    public static void showEditMap(String idMap) {
+        try {
+            FXMLLoader loader = new FXMLLoader(MapDashboard.class.getResource("/org/example/NodeMap/MapDashboard.fxml"));
+            Pane root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+
+            stage.setTitle("Edit Map");
+            stage.setScene(scene);
+            stage.setWidth(stage.getScene().getWindow().getWidth());
+            stage.setHeight(stage.getScene().getWindow().getHeight());
+            stage.getIcons().add(new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm()));
+
+            MapDashboard controller = loader.getController();
+            controller.initializeWithMap(idMap);
+            //controller.loadExistingStops();
+            //controller.loadExistingRoutes();
+
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void initializeWithMap(String idMap) {
+        System.out.println("Cargando mapa con ID: " + idMap);
+        worldMap = WorldMap.getInstance();
+        loadExistingStops();
+        loadExistingRoutes();
+    }
+
+    private void loadExistingStops() {
+        mapPane.getChildren().clear();
+        stopListVBox.getChildren().clear();
+
+        for (Stop stop : worldMap.getStops()) {
+            Circle stopCircle = new Circle(stop.getX(), stop.getY(), 10, Color.RED);
+            stopCircle.setOnMouseClicked(_ -> handleStopCircleClick(stop));
+            mapPane.getChildren().add(stopCircle);
+            stopCircles.put(stop, stopCircle);
+
+            String idStop = "No. " + stop.getId();
+            Text stopIdText = new Text(idStop);
+            stopIdText.setFill(Color.WHITE);
+            stopIdText.setStyle("-fx-font-weight: bold;");
+            stopIdText.setX(stop.getX() - idStop.length() * 3);
+            stopIdText.setY(stop.getY() - 15);
+            mapPane.getChildren().add(stopIdText);
+
+            Button stopButton = createStopButton(
+                    String.format("Stop %d (%.1f, %.1f)", stop.getId(), stop.getX(), stop.getY()), stop
+            );
+            stopListVBox.getChildren().add(stopButton);
+        }
+
+        stopListVBox.getChildren().add(addStopButton);
+    }
+
+    private void loadExistingRoutes() {
+        for (Route route : worldMap.getRoutes()) {
+            Stop start = worldMap.getStop(route.getStart());
+            Stop end = worldMap.getStop(route.getEnd());
+
+            if (start != null && end != null) {
+                Circle startCircle = stopCircles.get(start);
+                Circle endCircle = stopCircles.get(end);
+
+                Line line = new Line(
+                        startCircle.getCenterX(),
+                        startCircle.getCenterY(),
+                        endCircle.getCenterX(),
+                        endCircle.getCenterY()
+                );
+                line.setStroke(Color.BLACK);
+                line.setStrokeWidth(2);
+                mapPane.getChildren().add(line);
+
+                Pair<Stop, Stop> routePair = new Pair<>(start, end);
+                routeLines.put(routePair, line);
+                routeLines.put(new Pair<>(end, start), line);
+
+                Button routeButton = new Button(String.format("Route %d → %d", start.getId(), end.getId()));
+                routeButton.setStyle(buttonStyle);
+                routeButton.setOnMouseEntered(_ -> routeButton.setStyle(buttonHoverStyle));
+                routeButton.setOnMouseExited(_ -> routeButton.setStyle(buttonStyle));
+                routeButton.setOnMouseClicked(_ -> {
+                    if (showRouteDialog(start, end, worldMap.getRoute(start.getId(), end.getId()))) {
+                        createRoute(start, end,
+                                route.getDistance(),
+                                route.getTime(),
+                                route.getCost(),
+                                route.getTransports(),
+                                route.getTraffic(),
+                                true
+                        );
+                    }
+                });
+                routeButton.setMaxWidth(Double.MAX_VALUE);
+                routeListVBox.getChildren().add(routeButton);
+            }
+        }
+    }
+
     @FXML
     private void handleExit() {
-        // Crear un cuadro de confirmación para preguntar si desea guardar
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm exit");
         alert.setHeaderText("Save before closing?");
         alert.setContentText("If not saved, you will lose all changes.");
 
-        // Crear los botones de la alerta (Sí, No, Cancelar)
         ButtonType buttonTypeSave = new ButtonType("Save");
         ButtonType buttonTypeNoSave = new ButtonType("Do Not Save");
         ButtonType buttonTypeCancel = new ButtonType("Cancel");
 
         alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeNoSave, buttonTypeCancel);
 
-        // Mostrar la alerta y capturar la respuesta del usuario
         alert.showAndWait().ifPresent(response -> {
             if (response == buttonTypeSave) {
                 saveMap();
                 closeStage();
-            } else if (response == buttonTypeNoSave) {
+            } if (response == buttonTypeNoSave) {
                 closeStage();
-            } // Si el usuario selecciona Cancelar, no hace nada y permanece en la ventana.
+            }
         });
     }
 
@@ -238,10 +338,10 @@ public class MapDashboard {
             untoggleButtons();
             return;
         }
-        untoggleButtons(); // Untoggle all buttons
+        untoggleButtons();
         isPathFinding = !isPathFinding;
-        toggleButtonStyle(findPathButton); // Toggle the find path button
-        enrouteButton.setStyle(buttonStyle); // Reset enroute button style
+        toggleButtonStyle(findPathButton);
+        enrouteButton.setStyle(buttonStyle);
         pathStart = null;
         clearHighlightedPath();
         stopCircles.values().forEach(circle -> circle.setStyle(isPathFinding ? "-fx-cursor: hand;" : ""));
@@ -462,13 +562,12 @@ public class MapDashboard {
         mapPane.getChildren().add(stopCircle);
         stopCircles.put(newStop, stopCircle);
 
-        // Create the label for the stop's ID above the stop circle
         String idStop = "Stop No. " + newStop.getId();
         Text stopIdText = new Text(idStop);
         stopIdText.setFill(Color.WHITE);
         stopIdText.setStyle("-fx-font-weight: bold;");
-        stopIdText.setX(x - idStop.length() * 3); // Centered horizontally (adjust the offset as needed)
-        stopIdText.setY(y - 15); // Position above the circle (adjust the offset as needed)
+        stopIdText.setX(x - idStop.length() * 3);
+        stopIdText.setY(y - 15);
         mapPane.getChildren().add(stopIdText);
 
         Button stopButton = createStopButton(String.format("Stop %d (%.1f, %.1f)", newStop.getId(), x, y), newStop);
