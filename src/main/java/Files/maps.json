@@ -86,8 +86,8 @@
         "traffic": "HIGH"
       },
       {
-        "counter": 1,
-        "id": "1",
+        "counter": 2,
+        "id": "2",
         "start": 2,
         "end": 3,
         "distance": 10,
@@ -97,8 +97,8 @@
         "traffic": "LOW"
       },
       {
-        "counter": 1,
-        "id": "1",
+        "counter": 3,
+        "id": "3",
         "start": 1,
         "end": 2,
         "distance": 30,

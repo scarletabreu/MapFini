@@ -13,19 +13,43 @@ public class WorldMap {
     private final List<Route> routes;
     private static WorldMap instance;
     private List<Stop> lastCalculatedPath;
+    private int cantStops;
+    private int cantRoutes;
 
     public WorldMap(List<Stop> stops, List<Route> routes) {
         this.id = String.valueOf(++counter);
         this.stops = stops;
         this.routes = routes;
+        cantStops = stops.size();
+        cantRoutes = routes.size();
     }
 
     public String getId() {
         return id;
     }
 
-    public static void setInstance(WorldMap Instance){
-        instance = Instance;
+    public static void setInstance(WorldMap newInstance) {
+        if (newInstance == null) {
+            throw new IllegalArgumentException("Instance cannot be null");
+        }
+        if (instance == null) {
+            instance = new WorldMap(new ArrayList<>(newInstance.getStops()), new ArrayList<>(newInstance.getRoutes()));
+        } else {
+            instance.stops.clear();
+            instance.routes.clear();
+            instance.stops.addAll(newInstance.getStops());
+            instance.routes.addAll(newInstance.getRoutes());
+            instance.cantStops = instance.stops.size();
+            instance.cantRoutes = instance.routes.size();
+        }
+    }
+
+    public int getCantRoutes(){
+        return cantRoutes;
+    }
+
+    public int getCantStops(){
+        return cantStops;
     }
 
     public static WorldMap getInstance() {
@@ -35,24 +59,9 @@ public class WorldMap {
         return instance;
     }
 
-    public List<Stop> getLastCalculatedPath() {
-        return lastCalculatedPath;
-    }
-
-    public void createStop(Stop stop) {
-        stops.add(stop);
-    }
-
     public void createRoute(Route route) {
         routes.add(route);
-    }
-
-    public List<Route> getStopRoutes(int stopId) {
-        List<Route> stopRoutes = new ArrayList<>();
-        for (Route r : routes) {
-            if (r.getStart() == stopId) stopRoutes.add(r);
-        }
-        return stopRoutes;
+        if(route != null) cantRoutes++;
     }
 
     public Route getRoute(int startId, int endId) {
@@ -70,14 +79,9 @@ public class WorldMap {
         return stops;
     }
 
-    public void addRoute(Route route) {
-        routes.add(route);
-    }
-
-
-
     public void addStop(Stop stop) {
         stops.add(stop);
+        if(stop != null) cantStops++;
     }
 
     public Stop findStopById(int stopId) {
@@ -263,16 +267,6 @@ public class WorldMap {
         };
     }
 
-    private void printPath(Stop start, Stop end, double distance, List<Stop> path) {
-        if (path.isEmpty()) {
-            System.out.println("No existe un camino entre " + start.getId() + " y " + end.getId());
-        } else {
-            System.out.println("Camino desde " + start.getId() + " hasta " + end.getId() + ":");
-            System.out.println("Distancia: " + distance);
-            System.out.println("Paradas: " + path.stream().map(Stop::getId).toList());
-        }
-    }
-
     public void removeStop(Stop selectedStartStop) {
         if (selectedStartStop != null) {
             routes.removeIf(route -> route.getEnd() == selectedStartStop.getId() || route.getStart() == selectedStartStop.getId());
@@ -301,13 +295,7 @@ public class WorldMap {
     }
 
     public void updateRoute(Route route){
-        for(Route r : routes){
-            if(Objects.equals(r.getId(), route.getId())){
-                routes.remove(r);
-                routes.add(route);
-                return;
-            }
-        }
+        routes.replaceAll(route1 -> Objects.equals(route1.getId(), route.getId()) ? route : route1);
     }
 
     public Stop getStop(Integer start) {

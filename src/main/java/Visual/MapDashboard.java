@@ -25,6 +25,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
 import javafx.scene.image.ImageView;
@@ -57,13 +58,12 @@ public class MapDashboard {
 
     private Priority selectedPriority;
     private Algorithm selectedAlgorithm = Algorithm.DIJKSTRA;
-    private ImageView hoverCircle;
     private final Map<Stop, ImageView> stopCircles;
     private boolean isAddingStop = false;
     private boolean isRouting = false;
     private boolean isDeleting = false;
     private Stop selectedStartStop = null;
-    private final WorldMap worldMap;
+    private WorldMap worldMap;
     private boolean isPathFinding = false;
     private Stop pathStart = null;
     private final Map<Pair<Stop, Stop>, Line> routeLines;
@@ -74,6 +74,7 @@ public class MapDashboard {
     private final Image defaultImage = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/LocationDefault.png")).toExternalForm());
     private final Image selectedImage = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/LocationSelected.png")).toExternalForm());
     private final Image pathingImage = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/LocationPathing.png")).toExternalForm());
+    private final ImageView hoverCircle = new ImageView(pathingImage);
 
     private final UserJsonManager userJson = new UserJsonManager();
 
@@ -136,11 +137,16 @@ public class MapDashboard {
         if (worldMapOptional.isPresent()) {
             WorldMap worldMap = worldMapOptional.get();
             WorldMap.setInstance(worldMap);
+            this.worldMap = worldMap;
             System.out.println("Mapa cargado: " + worldMap.getId());
             System.out.println("Cargando paradas y rutas existentes... " + worldMap.getStops().size() + " paradas, " + worldMap.getRoutes().size() + " rutas.");
-
+            hoverCircle.setFitWidth(35);
+            hoverCircle.setFitHeight(45);
+            hoverCircle.setOpacity(0.5);
             loadExistingStops(worldMap);
             loadExistingRoutes(worldMap);
+            mapPane.getChildren().add(hoverCircle);
+            hoverCircle.setVisible(false);
         } else {
             System.out.println("No se encontró el mapa con ID: " + idMap);
         }
@@ -155,18 +161,18 @@ public class MapDashboard {
             ImageView stopCircle = new ImageView(defaultImage);
             stopCircle.setX(stop.getX());
             stopCircle.setY(stop.getY());
-            stopCircle.setFitWidth(15);
-            stopCircle.setFitHeight(20);
+            stopCircle.setFitWidth(35);
+            stopCircle.setFitHeight(45);
             stopCircle.setOnMouseClicked(_ -> handleStopCircleClick(stop));
             mapPane.getChildren().add(stopCircle);
             stopCircles.put(stop, stopCircle);
 
-            String idStop = "No. " + stop.getId();
+            String idStop = "Stop No. " + stop.getId();
             Text stopIdText = new Text(idStop);
             stopIdText.setFill(Color.WHITE);
             stopIdText.setStyle("-fx-font-weight: bold;");
-            stopIdText.setX(stop.getX() - idStop.length() * 3);
-            stopIdText.setY(stop.getY() - 15);
+            stopIdText.setX(stop.getX()-17.5);
+            stopIdText.setY(stop.getY() - 10);
             mapPane.getChildren().add(stopIdText);
 
             Button stopButton = createStopButton(
@@ -180,6 +186,7 @@ public class MapDashboard {
 
     private void loadExistingRoutes(WorldMap worldMap) {
         for (Route route : worldMap.getRoutes()) {
+            System.out.println("Loading Route: " + route.getId());
             Stop start = worldMap.getStop(route.getStart());
             Stop end = worldMap.getStop(route.getEnd());
 
@@ -187,21 +194,20 @@ public class MapDashboard {
                 ImageView startCircle = stopCircles.get(start);
                 ImageView endCircle = stopCircles.get(end);
 
-                Line line = new Line(
-                        startCircle.getX(),
-                        startCircle.getY(),
-                        endCircle.getX(),
-                        endCircle.getY()
-                );
+                Line line = new Line(startCircle.getX()+17.5, startCircle.getY()+22.5, endCircle.getX()+17.5, endCircle.getY()+22.5);
                 line.setStroke(Color.BLACK);
                 line.setStrokeWidth(2);
                 mapPane.getChildren().add(line);
+                mapPane.getChildren().remove(startCircle);
+                mapPane.getChildren().remove(endCircle);
+                mapPane.getChildren().add(startCircle);
+                mapPane.getChildren().add(endCircle);
 
                 Pair<Stop, Stop> routePair = new Pair<>(start, end);
                 routeLines.put(routePair, line);
                 routeLines.put(new Pair<>(end, start), line);
 
-                Button routeButton = new Button(String.format("Route %d → %d", start.getId(), end.getId()));
+                Button routeButton = new Button(String.format("Route %d→%d", start.getId(), end.getId()));
                 routeButton.setStyle(buttonStyle);
                 routeButton.setOnMouseEntered(_ -> routeButton.setStyle(buttonHoverStyle));
                 routeButton.setOnMouseExited(_ -> routeButton.setStyle(buttonStyle));
@@ -209,7 +215,7 @@ public class MapDashboard {
                     if (showRouteDialog(start, end, worldMap.getRoute(start.getId(), end.getId()))) {
                         createRoute(start, end,
                                 route.getDistance(),
-                                route.getTime(),
+                                route.getRawTime(),
                                 route.getCost(),
                                 route.getTransports(),
                                 route.getTraffic(),
@@ -276,7 +282,6 @@ public class MapDashboard {
 
     @FXML
     public void initialize() {
-        hoverCircle = new ImageView(pathingImage);
         hoverCircle.setFitWidth(35);
         hoverCircle.setFitHeight(45);
         hoverCircle.setOpacity(0.5);
@@ -398,8 +403,8 @@ public class MapDashboard {
                 int referenceIndex = stops.lastIndexOf('→');
                 int stop1 = Integer.parseInt(stops.substring(0, referenceIndex));
                 int stop2 = Integer.parseInt(stops.substring(referenceIndex+1));
-                System.out.println(stop1 + " " + stop2);
                 if(start == stop1 && stop2 == end) {
+                    System.out.println(stop1 + " " + stop2);
                     routeListVBox.getChildren().remove(n);
                     break;
                 }
@@ -643,10 +648,14 @@ public class MapDashboard {
         if(!isUpdating) {
             ImageView startCircle = stopCircles.get(start);
             ImageView endCircle = stopCircles.get(end);
-            Line line = new Line(startCircle.getX()+35, startCircle.getY()+22.5, endCircle.getX(), endCircle.getY()+22.5);
+            Line line = new Line(startCircle.getX()+17.5, startCircle.getY()+22.5, endCircle.getX()+17.5, endCircle.getY()+22.5);
             line.setStroke(Color.BLACK);
             line.setStrokeWidth(2);
             mapPane.getChildren().add(line);
+            mapPane.getChildren().remove(startCircle);
+            mapPane.getChildren().remove(endCircle);
+            mapPane.getChildren().add(startCircle);
+            mapPane.getChildren().add(endCircle);
             routeLines.put(new Pair<>(start, end), line);
             routeLines.put(new Pair<>(end, start), line);
             start.addVertex(end);
@@ -659,7 +668,7 @@ public class MapDashboard {
             routeButton.setOnMouseClicked(_ -> {
                 if (showRouteDialog(start, end, worldMap.getRoute(start.getId(),end.getId()))) {
                     createRoute(start,end,worldMap.getRoute(start.getId(),end.getId()).getDistance(),
-                            worldMap.getRoute(start.getId(),end.getId()).getTime(),
+                            worldMap.getRoute(start.getId(),end.getId()).getRawTime(),
                             worldMap.getRoute(start.getId(),end.getId()).getCost(),
                             worldMap.getRoute(start.getId(),end.getId()).getTransports(),
                             worldMap.getRoute(start.getId(),end.getId()).getTraffic(),true);
@@ -725,10 +734,10 @@ public class MapDashboard {
             ButtonType cancelButtonType;
             if(updatingRoute != null){
                 confirmButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
-                cancelButtonType = new ButtonType("Delete", ButtonBar.ButtonData.CANCEL_CLOSE);
+                cancelButtonType = new ButtonType("Delete", ButtonBar.ButtonData.NO);
                 dialog.setTitle("Update Route");
                 distanceField.setText(String.valueOf(updatingRoute.getDistance()));
-                timeField.setText(String.valueOf(updatingRoute.getTime()));
+                timeField.setText(String.valueOf(updatingRoute.getRawTime()));
                 costField.setText(String.valueOf(updatingRoute.getCost()));
                 transportComboBox.setValue(updatingRoute.getTransports());
                 trafficComboBox.setValue(updatingRoute.getTraffic().name());
@@ -736,9 +745,20 @@ public class MapDashboard {
                 confirmButtonType = new ButtonType("Create", ButtonBar.ButtonData.OK_DONE);
                 cancelButtonType = ButtonType.CANCEL;
             }
+            dialog.initStyle(StageStyle.UNDECORATED);
             dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, cancelButtonType);
             dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == cancelButtonType && updatingRoute != null) {
+                    System.out.println("Deleting route");
+                    worldMap.deleteRoute(updatingRoute);
+                    deleteRouteButtonByStops(start.getId(), end.getId());
+                    Line line = routeLines.get(new Pair<>(start, end));
+                    mapPane.getChildren().remove(line);
+                    routeLines.remove(new Pair<>(start, end));
+                    dialog.close();
+                }
                 if (dialogButton == confirmButtonType) {
+                    // Handle confirm (Create/Update) action
                     try {
                         int distance = Integer.parseInt(distanceField.getText());
                         int time = Integer.parseInt(timeField.getText());
@@ -751,20 +771,8 @@ public class MapDashboard {
                         showAlert("Invalid input. Please enter valid numbers.");
                         return null;
                     }
-                }
-                else if(dialogButton == cancelButtonType){
-                    if(Objects.equals(cancelButtonType.getText(), "Delete")) {
-                        System.out.println("wazaaaa");
-                        worldMap.deleteRoute(updatingRoute);
-                        deleteRouteButtonByStops(start.getId(),end.getId());
-                        Line line = routeLines.get(new Pair<>(start,end));
-                        mapPane.getChildren().remove(line);
-                        routeLines.remove(new Pair<>(start,end));
-                    }
-                    return null;
-                }
-                return null;
-            });
+                }return null;});
+
             Optional<Pair<String,String>> result = dialog.showAndWait();
             if(updatingRoute != null) return false;
             return (result.isPresent());
