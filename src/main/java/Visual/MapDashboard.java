@@ -20,12 +20,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import javafx.scene.image.ImageView;
 
 import java.io.IOException;
 import java.util.*;
@@ -55,13 +55,13 @@ public class MapDashboard {
 
     private Priority selectedPriority;
     private Algorithm selectedAlgorithm = Algorithm.DIJKSTRA;
-    private Circle hoverCircle;
-    private final Map<Stop, Circle> stopCircles;
+    private ImageView hoverCircle;
+    private final Map<Stop, ImageView> stopCircles;
     private boolean isAddingStop = false;
     private boolean isRouting = false;
     private boolean isDeleting = false;
     private Stop selectedStartStop = null;
-    private WorldMap worldMap;
+    private final WorldMap worldMap;
     private boolean isPathFinding = false;
     private Stop pathStart = null;
     private final Map<Pair<Stop, Stop>, Line> routeLines;
@@ -69,6 +69,9 @@ public class MapDashboard {
     private final Set<Pair<Stop, Stop>> createdRoutes = new HashSet<>();
     private final String buttonStyle = "-fx-background-color: #302836; -fx-text-fill: #FEFEFE; -fx-font-size: 14px; -fx-background-radius: 10; -fx-border-color: #AA7CFB; -fx-border-width: 2px; -fx-border-radius: 10;";
     private final String buttonHoverStyle = "-fx-background-color: #AA7CFB; -fx-text-fill: #FEFEFE; -fx-font-size: 14px; -fx-background-radius: 10; -fx-border-color: #302836; -fx-border-width: 2px; -fx-border-radius: 10;";
+    private final Image defaultImage = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/LocationDefault.png")).toExternalForm());
+    private final Image selectedImage = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/LocationSelected.png")).toExternalForm());
+    private final Image pathingImage = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/LocationPathing.png")).toExternalForm());
 
     private final UserJsonManager userJson = new UserJsonManager();
 
@@ -110,8 +113,7 @@ public class MapDashboard {
 
             MapDashboard controller = loader.getController();
             controller.initializeWithMap(idMap);
-            //controller.loadExistingStops();
-            //controller.loadExistingRoutes();
+
 
             stage.show();
         } catch (Exception e) {
@@ -145,7 +147,11 @@ public class MapDashboard {
         stopListVBox.getChildren().clear();
 
         for (Stop stop : worldMap.getStops()) {
-            Circle stopCircle = new Circle(stop.getX(), stop.getY(), 10, Color.RED);
+            ImageView stopCircle = new ImageView(defaultImage);
+            stopCircle.setX(stop.getX());
+            stopCircle.setY(stop.getY());
+            stopCircle.setFitWidth(15); // Adjust size as needed
+            stopCircle.setFitHeight(20);
             stopCircle.setOnMouseClicked(_ -> handleStopCircleClick(stop));
             mapPane.getChildren().add(stopCircle);
             stopCircles.put(stop, stopCircle);
@@ -173,14 +179,14 @@ public class MapDashboard {
             Stop end = worldMap.getStop(route.getEnd());
 
             if (start != null && end != null) {
-                Circle startCircle = stopCircles.get(start);
-                Circle endCircle = stopCircles.get(end);
+                ImageView startCircle = stopCircles.get(start);
+                ImageView endCircle = stopCircles.get(end);
 
                 Line line = new Line(
-                        startCircle.getCenterX(),
-                        startCircle.getCenterY(),
-                        endCircle.getCenterX(),
-                        endCircle.getCenterY()
+                        startCircle.getX(),
+                        startCircle.getY(),
+                        endCircle.getX(),
+                        endCircle.getY()
                 );
                 line.setStroke(Color.BLACK);
                 line.setStrokeWidth(2);
@@ -263,7 +269,9 @@ public class MapDashboard {
 
     @FXML
     public void initialize() {
-        hoverCircle = new Circle(10, Color.BLUE);
+        hoverCircle = new ImageView(pathingImage);
+        hoverCircle.setFitWidth(35);
+        hoverCircle.setFitHeight(45);
         hoverCircle.setOpacity(0.5);
         mapPane.getChildren().add(hoverCircle);
         hoverCircle.setVisible(false);
@@ -271,7 +279,7 @@ public class MapDashboard {
         setupPriorityComboBox();
         mapPane.setPrefHeight(1000);
         mapPane.setPrefWidth(1000);
-        mapPane.setStyle("-fx-background-color: #56525C; -fx-background-radius: 15;");
+        mapPane.setStyle("-fx-background-color: #56535C; -fx-background-radius: 15;");
     }
 
     private void setupButtonStyles() {
@@ -394,10 +402,13 @@ public class MapDashboard {
 
     private void handleStopCircleClick(Stop stop) {
         if(isDeleting){
+            System.out.println("here is fine");
             if (stop != null) {
+                System.out.println("or is it?");
                 // Remove the stop's circle and label
-                Circle stopCircle = stopCircles.get(stop);
+                ImageView stopCircle = stopCircles.get(stop);
                 if (stopCircle != null) {
+                    System.out.println("is it really?");
                     mapPane.getChildren().remove(stopCircle); // Remove the circle
                 }
 
@@ -436,8 +447,10 @@ public class MapDashboard {
         else if (isRouting) {
             if (selectedStartStop == null) {
                 selectedStartStop = stop;
-                stopCircles.get(stop).setFill(Color.GREEN);
+                changeStopLook(true,false,selectedStartStop);
             } else if (selectedStartStop != stop) {
+                if(stopCircles.get(selectedStartStop) == null) System.out.println("wtf did just happen");
+                System.out.println("Handling enroute on Stops: " + selectedStartStop.getId() + ", " + stop.getId());
                 // Ensure that the same two stops are not used twice in a route
                 Pair<Stop, Stop> routePair1 = new Pair<>(selectedStartStop, stop);
                 Pair<Stop, Stop> routePair2 = new Pair<>(stop, selectedStartStop);
@@ -450,22 +463,50 @@ public class MapDashboard {
                 if(showRouteDialog(selectedStartStop, stop, null)) {
                     createdRoutes.add(routePair1); // Add the route to the created routes set
                     createdRoutes.add(routePair2); // Add the reverse route as well
+                    changeStopLook(true, false, selectedStartStop);
+                    changeStopLook(true, false, stop);
+                    System.out.println("Handled enroute on Stops: " + selectedStartStop.getId() + ", " + stop.getId());
+                    selectedStartStop = null;
                 }
             }
         } else if (isPathFinding) {
             if (pathStart == null) {
                 pathStart = stop;
-                stopCircles.get(stop).setFill(Color.GREEN);
+                changeStopLook(true,false,pathStart);
             } else if (pathStart != stop) {
                 findAndHighlightPath(pathStart, stop);
-                stopCircles.get(pathStart).setFill(Color.BLUE);
-                stopCircles.get(stop).setFill(Color.BLUE);
+                changeStopLook(false,true,pathStart);
+                changeStopLook(false,true,stop);
                 pathStart = null;
                 isPathFinding = false;
                 findPathButton.setStyle(buttonStyle);
             }
         }
     }
+
+    private void defaultAllStops(){
+        for(Stop s: stopCircles.keySet()){
+            changeStopLook(false,false,s);
+        }
+    }
+
+    private void changeStopLook(boolean selected, boolean routing, Stop stop) {
+        ImageView stopCircle = stopCircles.get(stop);
+        if (stopCircle == null){
+            System.out.println("Mismatched or nonexisting stopCircle");
+            return;
+        }
+        System.out.println("Stop: " + stop.getId() + ", Selected: " + selected + ", Routing: " + routing);
+
+        stopCircle.setImage(defaultImage);
+        if (selected) {
+            stopCircle.setImage(selectedImage);
+        } else if (routing) {
+            stopCircle.setImage(pathingImage);
+        }
+        stopCircles.replace(stop,stopCircle);
+    }
+
 
     private Text getStopIdText(Stop stop) {
         for (javafx.scene.Node node : mapPane.getChildren()) {
@@ -552,10 +593,10 @@ public class MapDashboard {
     private void handleMouseMove(MouseEvent event) {
         if (!isAddingStop) return;
         Bounds mapBounds = mapPane.getBoundsInLocal();
-        double x = Math.min(Math.max(event.getX(), hoverCircle.getRadius()), mapBounds.getWidth() - hoverCircle.getRadius());
-        double y = Math.min(Math.max(event.getY(), hoverCircle.getRadius()), mapBounds.getHeight() - hoverCircle.getRadius());
-        hoverCircle.setCenterX(x);
-        hoverCircle.setCenterY(y);
+        double x = Math.min(Math.max(event.getX(), hoverCircle.getFitWidth()), mapBounds.getWidth() - hoverCircle.getFitWidth());
+        double y = Math.min(Math.max(event.getY(), hoverCircle.getFitHeight()), mapBounds.getHeight() - hoverCircle.getFitHeight());
+        hoverCircle.setX(x);
+        hoverCircle.setY(y);
     }
 
     @FXML
@@ -568,11 +609,15 @@ public class MapDashboard {
     private void handleStopPlacement(MouseEvent event) {
         Bounds mapBounds = mapPane.getBoundsInLocal();
         if (!mapBounds.contains(event.getX(), event.getY())) return;
-        double x = hoverCircle.getCenterX();
-        double y = hoverCircle.getCenterY();
+        double x = hoverCircle.getX();
+        double y = hoverCircle.getY();
         Stop newStop = new Stop(x, y);
         worldMap.addStop(newStop);
-        Circle stopCircle = new Circle(x, y, 10, Color.RED);
+        ImageView stopCircle = new ImageView(defaultImage);
+        stopCircle.setX(x);
+        stopCircle.setY(y);
+        stopCircle.setFitWidth(35);
+        stopCircle.setFitHeight(45);
         stopCircle.setOnMouseClicked(_ -> handleStopCircleClick(newStop));
         mapPane.getChildren().add(stopCircle);
         stopCircles.put(newStop, stopCircle);
@@ -581,8 +626,8 @@ public class MapDashboard {
         Text stopIdText = new Text(idStop);
         stopIdText.setFill(Color.WHITE);
         stopIdText.setStyle("-fx-font-weight: bold;");
-        stopIdText.setX(x - idStop.length() * 3);
-        stopIdText.setY(y - 15);
+        stopIdText.setX(x-17.5);
+        stopIdText.setY(y - 10);
         mapPane.getChildren().add(stopIdText);
 
         Button stopButton = createStopButton(String.format("Stop %d (%.1f, %.1f)", newStop.getId(), x, y), newStop);
@@ -597,9 +642,9 @@ public class MapDashboard {
 
     private void createRoute(Stop start, Stop end, int distance, int time, int cost, int transport, Traffic traffic, boolean isUpdating) {
         if(!isUpdating) {
-            Circle startCircle = stopCircles.get(start);
-            Circle endCircle = stopCircles.get(end);
-            Line line = new Line(startCircle.getCenterX(), startCircle.getCenterY(), endCircle.getCenterX(), endCircle.getCenterY());
+            ImageView startCircle = stopCircles.get(start);
+            ImageView endCircle = stopCircles.get(end);
+            Line line = new Line(startCircle.getX()+35, startCircle.getY()+22.5, endCircle.getX(), endCircle.getY()+22.5);
             line.setStroke(Color.BLACK);
             line.setStrokeWidth(2);
             mapPane.getChildren().add(line);
@@ -643,6 +688,8 @@ public class MapDashboard {
         isRouting = false;
         isPathFinding = false;
         isDeleting = false;
+        defaultAllStops();
+        clearHighlightedPath();
         resetButtonStyle(deleteStopButton);
         resetButtonStyle(addStopButton);
         resetButtonStyle(enrouteButton);
@@ -720,8 +767,6 @@ public class MapDashboard {
                 return null;
             });
             Optional<Pair<String,String>> result = dialog.showAndWait();
-            if(selectedStartStop != null) stopCircles.get(selectedStartStop).setFill(Color.RED);
-            selectedStartStop = null;
             if(updatingRoute != null) return false;
             return (result.isPresent());
         } catch (IOException e) {

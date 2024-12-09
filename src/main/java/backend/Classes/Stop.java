@@ -45,18 +45,8 @@ public class Stop {
     }
 
     public void removeVertex(Stop vertex) {
-        for(int i = 0; i < adjacencyList.size(); i++){
-            if(adjacencyList.get(i) == vertex.getId()){
-                adjacencyList.remove(i);
-                break;
-            }
-        }
-        for(int i = 0; i < vertex.adjacencyList.size(); i++){
-            if(vertex.adjacencyList.get(i) == id){
-                vertex.adjacencyList.remove(i);
-                break;
-            }
-        }
+        adjacencyList.remove(Integer.valueOf(vertex.getId()));  // Use Integer.valueOf to avoid issues with index changes
+        vertex.getAdjacencyList().remove(Integer.valueOf(this.id));  // Same for the other stop
     }
 
     public void clearAdjacencyList() {

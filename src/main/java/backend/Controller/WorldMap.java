@@ -57,7 +57,7 @@ public class WorldMap {
 
     public Route getRoute(int startId, int endId) {
         return routes.stream()
-                .filter(r -> r.getStart() == startId && r.getEnd() == endId)
+                .filter(r -> (r.getStart() == startId && r.getEnd() == endId) || (r.getStart() == endId && r.getEnd() == startId))
                 .findFirst()
                 .orElse(null);
     }
@@ -142,15 +142,27 @@ public class WorldMap {
         stops.forEach(stop -> distances.put(stop, Integer.MAX_VALUE));
         distances.put(start, 0);
 
+        // Iterate |V|-1 times (standard Bellman-Ford logic)
         for (int i = 1; i < stops.size(); i++) {
             boolean updated = false;
+            // Process each stop
             for (Stop current : stops) {
+                // For each neighbor in the adjacency list
                 for (Integer integer : current.getAdjacencyList()) {
                     Stop neighbor = findStopById(integer);
-                    Route route = getRoute(current.getId(), neighbor.getId());
+
+                    // Get route for both directions (undirected graph treatment)
+                    Route route1 = getRoute(current.getId(), neighbor.getId()); // A → B
+                    Route route2 = getRoute(neighbor.getId(), current.getId()); // B → A (if undirected)
+
+                    // Choose the correct route based on priority and ensure it's valid
+                    Route route = (route1 != null) ? route1 : route2;
                     if (route == null || calculatePriority(distances.get(current), route, priority) == -1) continue;
 
+                    // Calculate new distance with the current route
                     int newDist = calculatePriority(distances.get(current), route, priority);
+
+                    // Update the distance if a shorter path is found
                     if (newDist < distances.get(neighbor)) {
                         distances.put(neighbor, newDist);
                         predecessors.put(neighbor, current);
@@ -161,6 +173,7 @@ public class WorldMap {
             if (!updated) break;
         }
 
+        // Reconstruct the path from predecessors and update the last calculated path
         lastCalculatedPath = reconstructPath(predecessors, start, end);
         if (lastCalculatedPath.isEmpty()) {
             System.out.println("No existe un camino entre " + start.getId() + " y " + end.getId() + ".");
@@ -168,6 +181,7 @@ public class WorldMap {
             updatePath(lastCalculatedPath, distances.get(end));
         }
     }
+
 
     public void FloydWarshall(Stop start, Stop end, Priority priority) {
         int n = stops.size();
