@@ -62,9 +62,19 @@ public class WorldMap {
                 .orElse(null);
     }
 
+    public List<Route> getRoutes() {
+        return routes;
+    }
+
     public List<Stop> getStops() {
         return stops;
     }
+
+    public void addRoute(Route route) {
+        routes.add(route);
+    }
+
+
 
     public void addStop(Stop stop) {
         stops.add(stop);
@@ -286,4 +296,10 @@ public class WorldMap {
         }
     }
 
+    public Stop getStop(Integer start) {
+        for(Stop stop : stops){
+            if(stop.getId() == start) return stop;
+        }
+        return null;
+    }
 }
