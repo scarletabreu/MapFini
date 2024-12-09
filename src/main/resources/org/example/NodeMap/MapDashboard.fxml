@@ -13,6 +13,7 @@
                 <Button fx:id="deleteStopButton" text="Delete Stop" onAction="#handleDeleteStop"/>
                 <Button fx:id="enrouteButton" text="Enroute Stops" onAction="#handleEnroute"/>
                 <Button fx:id="findPathButton" text="Find Path" onAction="#handleFindPath"/>
+                <Button fx:id="exitButton" text="Exit" onAction="#handleExit"/>
                 <ComboBox fx:id="priorityComboBox" stylesheets="@styles.css">
                     <items>
                         <FXCollections fx:factory="observableArrayList">

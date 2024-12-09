@@ -24,6 +24,10 @@ public class WorldMap {
         return id;
     }
 
+    public static void setInstance(WorldMap Instance){
+        instance = Instance;
+    }
+
     public static WorldMap getInstance() {
         if (instance == null) {
             instance = new WorldMap(new ArrayList<>(), new ArrayList<>());

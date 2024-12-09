@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "1",
+    "username": "admin",
+    "password": "12345678",
+    "email": "i.dj.pena.dc@gmail.com",
+    "maps": [
+      "1"
+    ]
+  }
+]

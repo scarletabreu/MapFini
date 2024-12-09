@@ -1,1 +1,39 @@
-[]
+[
+  {
+    "id": "1",
+    "stops": [
+      {
+        "id": 1,
+        "adjacencyList": [
+          2
+        ],
+        "location": {
+          "x": 375.20000000000005,
+          "y": 237.6
+        }
+      },
+      {
+        "id": 2,
+        "adjacencyList": [
+          1
+        ],
+        "location": {
+          "x": 610.4,
+          "y": 201.6
+        }
+      }
+    ],
+    "routes": [
+      {
+        "counter": 1,
+        "id": "1",
+        "start": 1,
+        "end": 2,
+        "distance": 9,
+        "time": 9,
+        "cost": 9,
+        "transports": 2
+      }
+    ]
+  }
+]

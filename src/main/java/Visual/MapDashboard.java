@@ -6,6 +6,7 @@ import backend.Controller.WorldMap;
 import backend.Enum.Algorithm;
 import backend.Enum.Priority;
 import backend.Enum.Traffic;
+import backend.Files.UserJsonManager;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -47,6 +49,8 @@ public class MapDashboard {
     private ComboBox<String> algorithmComboBox = new ComboBox<>();
     @FXML
     private Button deleteStopButton;
+    @FXML
+    private Button exitButton;
 
     private Priority selectedPriority;
     private Algorithm selectedAlgorithm = Algorithm.DIJKSTRA;
@@ -65,6 +69,8 @@ public class MapDashboard {
     private final String buttonStyle = "-fx-background-color: #302836; -fx-text-fill: #FEFEFE; -fx-font-size: 14px; -fx-background-radius: 10; -fx-border-color: #AA7CFB; -fx-border-width: 2px; -fx-border-radius: 10;";
     private final String buttonHoverStyle = "-fx-background-color: #AA7CFB; -fx-text-fill: #FEFEFE; -fx-font-size: 14px; -fx-background-radius: 10; -fx-border-color: #302836; -fx-border-width: 2px; -fx-border-radius: 10;";
 
+    private final UserJsonManager userJson = new UserJsonManager();
+
     public MapDashboard() {
         stopCircles = new HashMap<>();
         routeLines = new HashMap<>();
@@ -81,10 +87,62 @@ public class MapDashboard {
             primaryStage.setScene(scene);
             primaryStage.setWidth(primaryStage.getScene().getWindow().getWidth());
             primaryStage.setHeight(primaryStage.getScene().getWindow().getHeight());
-            primaryStage.getIcons().add(new javafx.scene.image.Image("file:/C:/Users/Scarlet/Downloads/A%20-%20DT/MapApp/src/main/java/Photos/TheMap.png"));
+            primaryStage.getIcons().add(new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm()));
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleExit() {
+        // Crear un cuadro de confirmación para preguntar si desea guardar
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm exit");
+        alert.setHeaderText("Save before closing?");
+        alert.setContentText("If not saved, you will lose all changes.");
+
+        // Crear los botones de la alerta (Sí, No, Cancelar)
+        ButtonType buttonTypeSave = new ButtonType("Save");
+        ButtonType buttonTypeNoSave = new ButtonType("Do Not Save");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel");
+
+        alert.getButtonTypes().setAll(buttonTypeSave, buttonTypeNoSave, buttonTypeCancel);
+
+        // Mostrar la alerta y capturar la respuesta del usuario
+        alert.showAndWait().ifPresent(response -> {
+            if (response == buttonTypeSave) {
+                saveMap();
+                closeStage();
+            } else if (response == buttonTypeNoSave) {
+                closeStage();
+            } // Si el usuario selecciona Cancelar, no hace nada y permanece en la ventana.
+        });
+    }
+
+    private void saveMap() {
+        System.out.println("Guardando el mapa...");
+        userJson.saveMap(worldMap);
+    }
+
+    private void closeStage() {
+        if (exitButton == null) {
+            System.err.println("exitButton is null!");
+            return;
+        }
+
+        if (exitButton.getScene() == null) {
+            System.err.println("Scene is null for exitButton!");
+            return;
+        }
+
+        Stage stage = (Stage) exitButton.getScene().getWindow();
+        if (stage != null) {
+            System.out.println("Stage is valid. Proceeding to close.");
+            MainDashboard.showMainDashboard(stage);
+            stage.close();
+        } else {
+            System.err.println("Stage is null!");
         }
     }
 
@@ -106,6 +164,14 @@ public class MapDashboard {
         addStopButton.setStyle(buttonStyle);
         findPathButton.setStyle(buttonStyle);
         enrouteButton.setStyle(buttonStyle);
+        exitButton.setStyle(buttonStyle);
+
+        exitButton.setOnMouseExited(_ ->
+            exitButton.setStyle(buttonStyle)
+        );
+        exitButton.setOnMouseEntered(_ ->
+            exitButton.setStyle(buttonHoverStyle)
+        );
 
         addStopButton.setOnMouseExited(_ -> {
             if (!isAddingStop) addStopButton.setStyle(buttonStyle);
@@ -494,6 +560,7 @@ public class MapDashboard {
             ComboBox<Integer> transportComboBox = (ComboBox<Integer>) dialogPane.lookup("#transportComboBox");
             transportComboBox.getItems().addAll(1, 2, 3, 4);
             ComboBox<String> trafficComboBox = (ComboBox<String>) dialogPane.lookup("#trafficComboBox");
+            trafficComboBox.getItems().addAll("NONE","LOW","MEDIUM","HIGH","CARWRECK");
             ButtonType confirmButtonType;
             ButtonType cancelButtonType;
             if(updatingRoute != null){
@@ -517,7 +584,7 @@ public class MapDashboard {
                         int time = Integer.parseInt(timeField.getText());
                         int cost = Integer.parseInt(costField.getText());
                         int transport = (transportComboBox.getValue() != null) ? transportComboBox.getValue() : 1;
-                        Traffic traffic = Traffic.valueOf(trafficComboBox.getValue());
+                        Traffic traffic = Objects.equals(trafficComboBox.getValue(), "NONE") ? null : Traffic.valueOf(trafficComboBox.getValue());
                         createRoute(start, end, distance, time, cost, transport, traffic, (updatingRoute != null));
                         return new Pair<>(start.getId() + "", end.getId() + "");
                     } catch (NumberFormatException e) {

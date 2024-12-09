@@ -1,13 +1,9 @@
 package Visual;
 
-import backend.Controller.WorldMap;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -15,11 +11,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.util.List;
 import java.util.Objects;
 
 public class MainDashboard extends Application {
-    private Scene scene;
 
     public static void showDashboard(Stage primaryStage) {
         MainDashboard dashboard = new MainDashboard();
@@ -30,6 +24,11 @@ public class MainDashboard extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void showMainDashboard(Stage window) {
+        MainDashboard dashboard = new MainDashboard();
+        dashboard.start(window);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class MainDashboard extends Application {
 
         Button menuButton = new Button("≡");
         menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20px;");
-        menuButton.setOnAction(e -> {
+        menuButton.setOnAction(_ -> {
             Sidebar sidebar = findSidebarInStackPane(mainContainer);
 
             if (sidebar == null || !sidebar.isVisible()) {
@@ -69,7 +68,7 @@ public class MainDashboard extends Application {
         VBox.setVgrow(spacer, Priority.ALWAYS);
         leftMenu.getChildren().add(spacer);
 
-        Image image = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/MainUser.png")).toExternalForm());;
+        Image image = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/MainUser.png")).toExternalForm());
         ImageView imageView = new ImageView(image);
         imageView.setFitHeight(30);
         imageView.setFitWidth(30);
@@ -98,7 +97,7 @@ public class MainDashboard extends Application {
 
         Button openMapBtn = createPurpleButton("Open Map");
 
-        Image photo1 = new Image("file:/C:/Users/Scarlet/Downloads/A-DT/opop/src/main/resources/Photos/worldMap.png");  // Reemplaza con la ruta correcta de tu imagen
+        Image photo1 = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/worldMap.png")).toExternalForm()); // Reemplaza con la ruta correcta de tu imagen
         ImageView photoView1 = new ImageView(photo1);
 
         photoView1.setFitHeight(60);
@@ -109,13 +108,13 @@ public class MainDashboard extends Application {
 
         openMapBtn.setGraphic(buttonContent1);
 
-        openMapBtn.setOnAction(e -> {
+        openMapBtn.setOnAction(_ -> {
             System.out.println("Abrir el mapa");
-            // Cargar los mapas del usuario
+            OpenMap.showDashboard(primaryStage);
         });
         Button createMapBtn = createPurpleButton("Create Map");
 
-        Image photo = new Image("file:/C:/Users/Scarlet/Downloads/A-DT/opop/src/main/resources/Photos/MapGPS.png");  // Reemplaza con la ruta correcta de tu imagen
+        Image photo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/MapGPS.png")).toExternalForm());  // Reemplaza con la ruta correcta de tu imagen
         ImageView photoView = new ImageView(photo);
 
         photoView.setFitHeight(60);
@@ -126,7 +125,7 @@ public class MainDashboard extends Application {
 
         createMapBtn.setGraphic(buttonContent);
 
-        createMapBtn.setOnAction(e -> {
+        createMapBtn.setOnAction(_ -> {
             System.out.println("Crear Mapa");
 
             MapDashboard.showMapDashboard(primaryStage);
@@ -151,15 +150,19 @@ public class MainDashboard extends Application {
         infoCards.setAlignment(Pos.CENTER);
         infoCards.setPadding(new Insets(20, 0, 0, 0));
 
-        VBox recentActivity = createInfoCard("Recent Activity",
-                "file:/C:/Users/Scarlet/Downloads/A-DT/opop/src/main/resources/Photos/Time.png",
+        VBox recentActivity = createInfoCard(
+                "Recent Activity",
+                Objects.requireNonNull(getClass().getResource("/Photos/Time.png")).toExternalForm(),
                 "Last Map: Today",
-                "Last route created: 30 min");
+                "Last route created: 30 min"
+        );
 
-        VBox yourRoutes = createInfoCard("Your Routes",
-                "file:/C:/Users/Scarlet/Downloads/A-DT/opop/src/main/resources/Photos/Routes.png",
+        VBox yourRoutes = createInfoCard(
+                "Your Routes",
+                Objects.requireNonNull(getClass().getResource("/Photos/Routes.png")).toExternalForm(),
                 "Active: 10 min",
-                "Total Distance: 10 km");
+                "Total Distance: 10 km"
+        );
 
         infoCards.getChildren().addAll(recentActivity, yourRoutes);
 
@@ -183,7 +186,7 @@ public class MainDashboard extends Application {
                         ".axis-label { -fx-text-fill: white; } " +
                         ".chart-title { -fx-text-fill: white; }";
 
-        scene = new Scene(mainContainer, 800, 500);
+        Scene scene = new Scene(mainContainer, 800, 500);
         scene.getStylesheets().add("data:text/css," + css.replace(" ", "%20"));
 
         primaryStage.setTitle("Main Dashboard");
@@ -218,7 +221,7 @@ public class MainDashboard extends Application {
         );
         button.setMaxWidth(Double.MAX_VALUE);
 
-        button.setOnMouseEntered(e -> button.setStyle(
+        button.setOnMouseEntered(_ -> button.setStyle(
                 "-fx-background-color: #302836; " +
                         "-fx-text-fill: #FEFEFE; " +
                         "-fx-font-size: 20px; " +
@@ -229,7 +232,7 @@ public class MainDashboard extends Application {
                         "-fx-border-radius: 10;"
         ));
 
-        button.setOnMouseExited(e -> button.setStyle(
+        button.setOnMouseExited(_ -> button.setStyle(
                 "-fx-background-color: #AA7CFB; " +
                         "-fx-text-fill: #FEFEFE; " +
                         "-fx-font-size: 20px; " +

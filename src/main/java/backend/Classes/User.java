@@ -1,14 +1,14 @@
 package backend.Classes;
 
-import backend.Controller.WorldMap;
+import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private String id;
+    private final String id;
     private String username;
     private String password;
     private String email;
-    private List<WorldMap> maps;
+    private List<String> maps;
 
     public User(String id, String username, String password, String email) {
         this.id = id;
@@ -22,7 +22,7 @@ public class User {
         this.username = "";
         this.password = "";
         this.email = "";
-        this.maps = null;
+        this.maps = new ArrayList<>();
     }
 
     public String getId() {
@@ -34,6 +34,21 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public List<String> getMaps() {
+        return maps;
+    }
+
+    public void setMaps(List<String> maps) {
+        this.maps = maps;
+    }
+
+    public void addMap(String mapId) {
+        if (this.maps == null) {
+            this.maps = new ArrayList<>();  // Asegura que la lista no sea nula
+        }
+        this.maps.add(mapId);  // Agrega el ID del mapa a la lista
     }
 
     public String getEmail() {

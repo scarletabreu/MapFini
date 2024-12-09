@@ -1,6 +1,7 @@
 package Visual;
 
 import backend.Classes.User;
+import backend.Files.UserJsonManager;
 import backend.Mail.Welcome;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -28,17 +29,16 @@ import java.util.Objects;
 
 public class Login extends Application {
     private StackPane mainContainer;
+    private final UserJsonManager userJson = new UserJsonManager();
 
     @Override
     public void start(Stage primaryStage) {
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm()));
 
-        // Crea el contenedor principal y establece el fondo de gradiente
         mainContainer = new StackPane();
         addGradientBackground(screenBounds);
 
-        // Carga el formulario de inicio de sesión al iniciar
         mainContainer.getChildren().add(createLoginContainer(screenBounds));
 
         Scene scene = new Scene(mainContainer);
@@ -48,7 +48,6 @@ public class Login extends Application {
         primaryStage.show();
     }
 
-    // Método para crear y agregar el fondo de gradiente al contenedor principal
     private void addGradientBackground(Rectangle2D screenBounds) {
         Rectangle gradientBackground = new Rectangle();
         gradientBackground.setWidth(screenBounds.getWidth());
@@ -60,13 +59,12 @@ public class Login extends Application {
                 new Stop(0.875, Color.web("#AA7CFB"))
         ));
 
-        mainContainer.getChildren().add(0, gradientBackground); // Añadir al fondo
+        mainContainer.getChildren().addFirst(gradientBackground); // Añadir al fondo
     }
 
     public VBox createLoginContainer(Rectangle2D screenBounds) {
         VBox container = getvBox(screenBounds);
 
-        // Logo section
         Image logo = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm());
         ImageView logoView = new ImageView(logo);
         logoView.setFitWidth(150);
@@ -83,11 +81,11 @@ public class Login extends Application {
         titleLabel.setStyle("-fx-text-fill: #FFFFFF;");
 
         TextField usernameField = createField("Username");
-        StackPane passwordField = createPasswordField("Password");
+        StackPane passwordField = createPasswordField();
         CheckBox rememberMe = new CheckBox("Remember me");
         rememberMe.setStyle("-fx-text-fill: #FFFFFF;");
         Hyperlink forgotPassword = new Hyperlink("Forgot password?");
-        forgotPassword.setOnAction(e -> System.out.println("Forgot password clicked"));
+        forgotPassword.setOnAction(_ -> System.out.println("Forgot password clicked"));
 
         HBox rememberForgotContainer = new HBox(10);
         rememberForgotContainer.setAlignment(Pos.CENTER);
@@ -96,7 +94,7 @@ public class Login extends Application {
         Label questionLabel = new Label("Don't have an account?");
         questionLabel.setTextFill(Color.WHITE);
         Hyperlink signUpLink = new Hyperlink("Sign up");
-        signUpLink.setOnAction(e -> showSignUpForm(screenBounds));
+        signUpLink.setOnAction(_ -> showSignUpForm(screenBounds));
 
         // HBox para alinear los elementos horizontalmente
         HBox signUpContainer = new HBox(10);
@@ -114,20 +112,18 @@ public class Login extends Application {
                         "-fx-font-size: 16px;" +
                         "-fx-effect: dropshadow(gaussian, rgba(140,82,242,0.3), 10, 0, 0, 4);"
         );
-        loginButton.setOnAction(e -> {
+        loginButton.setOnAction(_ -> {
             String username = usernameField.getText();
-            String password = ((PasswordField) ((StackPane) passwordField).getChildren().get(1)).getText();
+            String password = ((PasswordField) passwordField.getChildren().get(1)).getText();
 
-           /* UserDB userDB = new UserDB();
-
-            if (userDB.checkLogin(username, password)) {
+            if (userJson.checkLogin(username, password)) {
                 System.out.println("Login exitoso.");
                 Stage dashboardStage = new Stage();
                 MainDashboard.showDashboard(dashboardStage);
                 ((Stage) container.getScene().getWindow()).close();
             } else {
                 System.out.println("Nombre de usuario o contraseña incorrectos.");
-            }*/
+            }
         });
 
         container.getChildren().addAll(
@@ -188,13 +184,13 @@ public class Login extends Application {
         // Campos del formulario de registro
         TextField emailField = createField("Email");
         TextField usernameField = createField("Username");
-        StackPane passwordField = createPasswordField("Password"); // Cambia a PasswordField
+        StackPane passwordField = createPasswordField(); // Cambia a PasswordField
         Button signUpButton = new Button("Sign Up");
 
         Label questionLabel = new Label("Have an account?");
         questionLabel.setTextFill(Color.WHITE);
         Hyperlink loginLink = new Hyperlink("Login");
-        loginLink.setOnAction(e -> showLoginForm(screenBounds));
+        loginLink.setOnAction(_ -> showLoginForm(screenBounds));
 
         // HBox para alinear los elementos horizontalmente
         HBox loginContainer = new HBox(10);
@@ -212,26 +208,29 @@ public class Login extends Application {
                         "-fx-effect: dropshadow(gaussian, rgba(140,82,242,0.3), 10, 0, 0, 4);"
         );
 
-        signUpButton.setOnAction(e -> {
+        signUpButton.setOnAction(_ -> {
             String email = emailField.getText();
             String username = usernameField.getText();
-            String password = ((PasswordField) ((StackPane) passwordField).getChildren().get(1)).getText();
+            String password = "";
+
+            if (passwordField.getChildren().get(1) instanceof PasswordField) {
+                password = ((PasswordField) passwordField.getChildren().get(1)).getText();
+                System.out.println("Password: " + password);
+            }
 
             if (email.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 System.out.println("Todos los campos son obligatorios.");
                 return;
             }
 
-           /* String userId = FirebaseService.generateId();
-            User newUser = new User(userId, username, password, email);
+            User newUser = new User(userJson.generateId(), username, password, email);
 
-            // Guarda en Firestore
-            if (userDB.create(newUser)) {
+            if (userJson.saveUser(newUser)) {
                 System.out.println("Usuario registrado con éxito.");
 
                 String subject = "¡Bienvenido a NodeMap!";
                 Welcome.sendEmail(email, subject, username, password);
-                System.out.println("Correo enviado correctamente.");
+                showLoginForm(screenBounds);
 
                 Stage dashboardStage = new Stage();
                 MainDashboard.showDashboard(dashboardStage);
@@ -239,7 +238,8 @@ public class Login extends Application {
                 ((Stage) signUpContainer.getScene().getWindow()).close();
             } else {
                 System.out.println("Error al registrar el usuario.");
-            }*/
+            }
+
         });
 
         // Agrega los elementos al contenedor de registro
@@ -276,10 +276,10 @@ public class Login extends Application {
         return field;
     }
 
-    private StackPane createPasswordField(String promptText) {
+    private StackPane createPasswordField() {
         // Crea el campo de contraseña
         PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText(promptText);
+        passwordField.setPromptText("Password");
         passwordField.setPrefHeight(50);
         passwordField.setPrefWidth(300);
         passwordField.setStyle(
@@ -294,20 +294,20 @@ public class Login extends Application {
 
         // Campo de texto alternativo para mostrar la contraseña sin encriptar
         TextField textField = new TextField();
-        textField.setPromptText(promptText);
+        textField.setPromptText("Password");
         textField.setPrefHeight(50);
         textField.setPrefWidth(300);
         textField.setStyle(passwordField.getStyle());
         textField.setVisible(false);  // Inicialmente oculto
 
         // Sincroniza el contenido entre passwordField y textField
-        passwordField.textProperty().addListener((obs, oldText, newText) -> textField.setText(newText));
-        textField.textProperty().addListener((obs, oldText, newText) -> passwordField.setText(newText));
+        passwordField.textProperty().addListener((_, _, newText) -> textField.setText(newText));
+        textField.textProperty().addListener((_, _, newText) -> passwordField.setText(newText));
 
         // Crea el botón para mostrar/ocultar la contraseña
         Button toggleButton = new Button("👁");
         toggleButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-        toggleButton.setOnAction(e -> {
+        toggleButton.setOnAction(_ -> {
             boolean isPasswordVisible = textField.isVisible();
             textField.setVisible(!isPasswordVisible);
             passwordField.setVisible(isPasswordVisible);
