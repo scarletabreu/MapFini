@@ -7,6 +7,7 @@ import backend.Enum.Algorithm;
 import backend.Enum.Priority;
 import backend.Enum.Traffic;
 import backend.Files.UserJsonManager;
+import backend.Files.WorldMapJsonManager;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -120,12 +121,26 @@ public class MapDashboard {
 
     public void initializeWithMap(String idMap) {
         System.out.println("Cargando mapa con ID: " + idMap);
-        worldMap = WorldMap.getInstance();
-        loadExistingStops();
-        loadExistingRoutes();
+
+        // Cargar el mapa desde el archivo JSON
+        WorldMapJsonManager jsonManager = new WorldMapJsonManager();
+        Optional<WorldMap> worldMapOptional = jsonManager.findWorldMapById(idMap);
+
+        if (worldMapOptional.isPresent()) {
+            WorldMap worldMap = worldMapOptional.get();
+            WorldMap.setInstance(worldMap);
+            System.out.println("Mapa cargado: " + worldMap.getId());
+            System.out.println("Cargando paradas y rutas existentes... " + worldMap.getStops().size() + " paradas, " + worldMap.getRoutes().size() + " rutas.");
+
+            loadExistingStops(worldMap);
+            loadExistingRoutes(worldMap);
+        } else {
+            System.out.println("No se encontró el mapa con ID: " + idMap);
+        }
     }
 
-    private void loadExistingStops() {
+
+    private void loadExistingStops(WorldMap worldMap) {
         mapPane.getChildren().clear();
         stopListVBox.getChildren().clear();
 
@@ -152,7 +167,7 @@ public class MapDashboard {
         stopListVBox.getChildren().add(addStopButton);
     }
 
-    private void loadExistingRoutes() {
+    private void loadExistingRoutes(WorldMap worldMap) {
         for (Route route : worldMap.getRoutes()) {
             Stop start = worldMap.getStop(route.getStart());
             Stop end = worldMap.getStop(route.getEnd());
