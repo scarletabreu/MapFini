@@ -114,13 +114,13 @@ public class OpenMap extends Application {
         ));
 
         button.setOnAction(_ -> {
+            primaryStage.close();
             MainDashboard.showDashboard(primaryStage);
 
-            Stage stage = (Stage) button.getScene().getWindow();
-            stage.close();
         });
         return button;
     }
+
 
 
     private @NotNull Button getButton(Stage primaryStage, ListView<String> mapListView) {
