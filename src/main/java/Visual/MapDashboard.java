@@ -8,6 +8,7 @@ import backend.Enum.Priority;
 import backend.Enum.Traffic;
 import backend.Files.UserJsonManager;
 import backend.Files.WorldMapJsonManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
@@ -107,13 +109,16 @@ public class MapDashboard {
 
             stage.setTitle("Edit Map");
             stage.setScene(scene);
-            stage.setWidth(stage.getScene().getWindow().getWidth());
-            stage.setHeight(stage.getScene().getWindow().getHeight());
             stage.getIcons().add(new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/TheMap.png")).toExternalForm()));
+
+            javafx.geometry.Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+            stage.setWidth(screenBounds.getWidth());
+            stage.setHeight(screenBounds.getHeight());
+            stage.setX(0); // Asegurar que se muestre desde la esquina izquierda
+            stage.setY(0);
 
             MapDashboard controller = loader.getController();
             controller.initializeWithMap(idMap);
-
 
             stage.show();
         } catch (Exception e) {
@@ -121,10 +126,10 @@ public class MapDashboard {
         }
     }
 
+
     public void initializeWithMap(String idMap) {
         System.out.println("Cargando mapa con ID: " + idMap);
 
-        // Cargar el mapa desde el archivo JSON
         WorldMapJsonManager jsonManager = new WorldMapJsonManager();
         Optional<WorldMap> worldMapOptional = jsonManager.findWorldMapById(idMap);
 
@@ -150,7 +155,7 @@ public class MapDashboard {
             ImageView stopCircle = new ImageView(defaultImage);
             stopCircle.setX(stop.getX());
             stopCircle.setY(stop.getY());
-            stopCircle.setFitWidth(15); // Adjust size as needed
+            stopCircle.setFitWidth(15);
             stopCircle.setFitHeight(20);
             stopCircle.setOnMouseClicked(_ -> handleStopCircleClick(stop));
             mapPane.getChildren().add(stopCircle);
@@ -260,12 +265,14 @@ public class MapDashboard {
         Stage stage = (Stage) exitButton.getScene().getWindow();
         if (stage != null) {
             System.out.println("Stage is valid. Proceeding to close.");
-            MainDashboard.showMainDashboard(stage);
             stage.close();
+
+            Platform.runLater(() -> MainDashboard.showMainDashboard(new Stage()));
         } else {
             System.err.println("Stage is null!");
         }
     }
+
 
     @FXML
     public void initialize() {
@@ -405,40 +412,33 @@ public class MapDashboard {
             System.out.println("here is fine");
             if (stop != null) {
                 System.out.println("or is it?");
-                // Remove the stop's circle and label
                 ImageView stopCircle = stopCircles.get(stop);
                 if (stopCircle != null) {
                     System.out.println("is it really?");
-                    mapPane.getChildren().remove(stopCircle); // Remove the circle
+                    mapPane.getChildren().remove(stopCircle);
                 }
 
-                Text stopIdText = getStopIdText(stop); // Find the label for the stop
+                Text stopIdText = getStopIdText(stop);
                 if (stopIdText != null) {
-                    mapPane.getChildren().remove(stopIdText); // Remove the label
+                    mapPane.getChildren().remove(stopIdText);
                 }
 
-                // Remove routes connected to the stop
                 Set<Pair<Stop, Stop>> routesToRemove = new HashSet<>();
                 for (Map.Entry<Pair<Stop, Stop>, Line> entry : routeLines.entrySet()) {
                     Pair<Stop, Stop> route = entry.getKey();
                     if (route.getKey().equals(stop) || route.getValue().equals(stop)) {
                         Line routeLine = entry.getValue();
-                        mapPane.getChildren().remove(routeLine); // Remove the route line
-                        routesToRemove.add(route); // Mark route for removal
+                        mapPane.getChildren().remove(routeLine);
+                        routesToRemove.add(route);
                     }
                 }
 
-                // Remove the routes from routeLines map
                 for (Pair<Stop, Stop> route : routesToRemove) {
                     routeLines.remove(route);
                 }
 
                 deleteStopButtonById(stop.getId());
-
-                // Remove the stop from the worldMap
                 worldMap.removeStop(stop);
-
-                // Also update stopCircles map to remove the stop
                 stopCircles.remove(stop);
             } else {
                 showAlert("No stop selected for deletion.");
@@ -451,18 +451,17 @@ public class MapDashboard {
             } else if (selectedStartStop != stop) {
                 if(stopCircles.get(selectedStartStop) == null) System.out.println("wtf did just happen");
                 System.out.println("Handling enroute on Stops: " + selectedStartStop.getId() + ", " + stop.getId());
-                // Ensure that the same two stops are not used twice in a route
                 Pair<Stop, Stop> routePair1 = new Pair<>(selectedStartStop, stop);
                 Pair<Stop, Stop> routePair2 = new Pair<>(stop, selectedStartStop);
 
                 if (createdRoutes.contains(routePair1) || createdRoutes.contains(routePair2)) {
                     showAlert("This route has already been created.");
-                    return; // Do not proceed with creating the route
+                    return;
                 }
 
                 if(showRouteDialog(selectedStartStop, stop, null)) {
-                    createdRoutes.add(routePair1); // Add the route to the created routes set
-                    createdRoutes.add(routePair2); // Add the reverse route as well
+                    createdRoutes.add(routePair1);
+                    createdRoutes.add(routePair2);
                     changeStopLook(true, false, selectedStartStop);
                     changeStopLook(true, false, stop);
                     System.out.println("Handled enroute on Stops: " + selectedStartStop.getId() + ", " + stop.getId());
@@ -554,9 +553,9 @@ public class MapDashboard {
             untoggleButtons();
             return;
         }
-        untoggleButtons(); // Untoggle all buttons
+        untoggleButtons();
         isRouting = !isRouting;
-        toggleButtonStyle(enrouteButton); // Toggle the enroute button
+        toggleButtonStyle(enrouteButton);
         selectedStartStop = null;
         stopCircles.values().forEach(circle -> circle.setStyle(isRouting ? "-fx-cursor: hand;" : ""));
     }

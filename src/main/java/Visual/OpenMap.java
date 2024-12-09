@@ -57,7 +57,6 @@ public class OpenMap extends Application {
         layout.setPadding(new Insets(20, 20, 20, 20));
         layout.setStyle("-fx-background-color: #302836;");
 
-        // Título
         Label tituloLabel = new Label("Mis Mapas");
         tituloLabel.setStyle(
                 "-fx-font-size: 18px;" +
@@ -159,7 +158,7 @@ public class OpenMap extends Application {
         editButton.setOnAction(_ -> {
             String selectedMap = mapListView.getSelectionModel().getSelectedItem();
             if (selectedMap != null) {
-                openMapEditor(selectedMap);
+                openMapEditor(primaryStage, selectedMap);
             } else {
                 mostrarAlertaSeleccion(primaryStage);
             }
@@ -176,10 +175,12 @@ public class OpenMap extends Application {
         alert.showAndWait();
     }
 
-    private void openMapEditor(String idMap) {
+    private void openMapEditor(Stage currentStage, String idMap) {
         System.out.println("Abriendo editor para el mapa: " + idMap);
         MapDashboard.showEditMap(idMap);
+        currentStage.close(); // Cierra la ventana actual
     }
+
 
     public static void main(String[] args) {
         launch(args);

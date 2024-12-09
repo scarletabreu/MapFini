@@ -1,8 +1,10 @@
 package Visual;
 
+import backend.Files.UserJsonManager;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -86,7 +88,7 @@ public class MainDashboard extends Application {
         centerContent.setMaxHeight(500); // Altura fija para el contenido central
         centerContent.setAlignment(Pos.TOP_LEFT);
 
-        Label welcomeLabel = new Label("Welcome Back UserName");
+        Label welcomeLabel = new Label("Welcome Back");
         welcomeLabel.setStyle("-fx-text-fill: #FEFEFE; -fx-font-size: 24px; -fx-font-weight: bold;");
 
         VBox buttonContainer = new VBox(20);
@@ -130,10 +132,22 @@ public class MainDashboard extends Application {
 
             MapDashboard.showMapDashboard(primaryStage);
         });
+
+        Image mapImage = new Image(Objects.requireNonNull(MainDashboard.class.getResource("/Photos/MapPhoto.jpg")).toExternalForm());
+        ImageView mapImageView = new ImageView(mapImage);
+
+        mapImageView.setFitWidth(300);
+        mapImageView.setFitHeight(300);
+        mapImageView.setPreserveRatio(true);
+
+        VBox mapContainer = new VBox();
+        mapContainer.setAlignment(Pos.CENTER);
+        mapContainer.getChildren().add(mapImageView);
+
         topButtons.getChildren().addAll(openMapBtn, createMapBtn);
 
-        buttonContainer.getChildren().addAll(topButtons/* add the element (la foto )*/);
-        centerContent.getChildren().addAll(welcomeLabel, buttonContainer);
+        buttonContainer.getChildren().addAll(topButtons);
+        centerContent.getChildren().addAll(welcomeLabel, buttonContainer, mapContainer);
 
         VBox rightPanel = new VBox(10);
         rightPanel.setStyle("-fx-background-color: #56525C; -fx-background-radius: 10;");
@@ -146,27 +160,8 @@ public class MainDashboard extends Application {
         rightPanel.setAlignment(Pos.TOP_CENTER);
         rightPanel.setPadding(new Insets(10));
 
-        HBox infoCards = new HBox(20);
-        infoCards.setAlignment(Pos.CENTER);
-        infoCards.setPadding(new Insets(20, 0, 0, 0));
 
-        VBox recentActivity = createInfoCard(
-                "Recent Activity",
-                Objects.requireNonNull(getClass().getResource("/Photos/Time.png")).toExternalForm(),
-                "Last Map: Today",
-                "Last route created: 30 min"
-        );
-
-        VBox yourRoutes = createInfoCard(
-                "Your Routes",
-                Objects.requireNonNull(getClass().getResource("/Photos/Routes.png")).toExternalForm(),
-                "Active: 10 min",
-                "Total Distance: 10 km"
-        );
-
-        infoCards.getChildren().addAll(recentActivity, yourRoutes);
-
-        centerContainer.getChildren().addAll(centerContent, infoCards);
+        centerContainer.getChildren().addAll(centerContent);
 
         topSection.getChildren().addAll(leftMenu, centerContainer, rightPanel);
 
